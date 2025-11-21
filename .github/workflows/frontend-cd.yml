@@ -4,8 +4,6 @@ on:
   workflow_dispatch:
   release:
     types: [published]
-  push:
-    branches: [main]
 
 jobs:
   deploy:
@@ -13,29 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
+      # 1️ Checkout the repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Setup Node.js
+      # 2️ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # Install dependencies in frontend folder
+      # 3️ Install dependencies inside frontend folder
       - name: Install dependencies
         working-directory: frontend
-        run: npm ci
+        run: npm install
 
-      # Build frontend
+      # 4️ Build frontend
       - name: Build frontend
         working-directory: frontend
         run: npm run build
 
-      # Deploy to GitHub Pages
+      # 5 Deploy to GitHub Pages using PAT
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          personal_token: ${{ secrets.GH_PAT }}  # <-- Your PAT secret
           publish_dir: frontend/dist
+          # optional: force push if needed
+          # force_orphan: true
