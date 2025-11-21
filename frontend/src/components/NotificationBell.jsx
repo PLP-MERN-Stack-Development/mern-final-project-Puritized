@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaBell } from 'react-icons/fa';
+import { FaBell } from 'react-icons/fa6';
 import axios from 'axios';
 
 export default function NotificationBell() {
