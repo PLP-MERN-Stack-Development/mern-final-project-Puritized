@@ -1,9 +1,11 @@
 name: Frontend CD
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:       # Manual trigger
   release:
-    types: [published]
+    types: [published]     # Trigger on release publish
+  push:
+    branches: [main]       # Auto-deploy on push to main
 
 jobs:
   deploy:
@@ -14,30 +16,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Switch into the frontend folder
-      - name: Set working directory
-        run: cd frontend
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
       - name: Install dependencies
-        working-directory: ./frontend
+        working-directory: frontend
         run: npm install
 
-      - name: Build production
-        working-directory: ./frontend
-        env:
-          # Required for GitHub Pages
-          BASE_URL: "/${{ github.event.repository.name }}/"
-        run: npm run build
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build  # uses local Vite binary
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v7
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./frontend/dist
-          force_orphan: true
-          enable_jekyll: false
+          publish_dir: frontend/dist
