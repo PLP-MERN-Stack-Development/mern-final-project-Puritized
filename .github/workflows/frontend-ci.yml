@@ -26,6 +26,10 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
+      - name: Fix permissions for node binaries
+        working-directory: ./frontend
+        run: chmod -R +x ./node_modules/.bin
+
       - name: Run tests
         working-directory: ./frontend
         run: npm test --if-present
@@ -39,3 +43,4 @@ jobs:
         with:
           name: frontend-dist
           path: frontend/dist
+          if-no-files-found: error
