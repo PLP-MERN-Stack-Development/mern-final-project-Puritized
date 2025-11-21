@@ -1,0 +1,28 @@
+import { Routes, Route } from "react-router-dom";
+import Home from "../pages/Home";
+import Login from "../pages/Login";
+import Courses from "../pages/Courses";
+import CourseDetails from "../pages/CourseDetails";
+import ProtectedRoute from "./ProtectedRoute";
+
+export default function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+
+      <Route path="/login" element={<Login />} />
+
+      <Route path="/courses" element={<Courses />} />
+      <Route path="/courses/:id" element={<CourseDetails />} />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
+}
