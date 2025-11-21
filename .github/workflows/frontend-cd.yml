@@ -7,12 +7,16 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to GitHub Pages
+    name: Deploy Frontend to GitHub Pages
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Switch into the frontend folder
+      - name: Set working directory
+        run: cd frontend
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -20,13 +24,20 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
+        working-directory: ./frontend
         run: npm install
 
       - name: Build production
+        working-directory: ./frontend
+        env:
+          # Required for GitHub Pages
+          BASE_URL: "/${{ github.event.repository.name }}/"
         run: npm run build
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v7
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./frontend/dist
+          force_orphan: true
+          enable_jekyll: false
