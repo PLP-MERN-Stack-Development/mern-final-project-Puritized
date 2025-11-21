@@ -1,14 +1,34 @@
-import { BrowserRouter } from "react-router-dom";
-import AppRoutes from "./routes/AppRoutes";
-import AuthProvider from "./context/AuthContext";
-import "./styles/global.css";
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import Courses from './pages/Courses';
+import Lessons from './pages/Lessons';
+import Chat from './pages/Chat';
+import Bookings from './pages/Bookings';
+import Payments from './pages/Payments';
+import NotFound from './pages/NotFound';
+import Navbar from './components/Navbar';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </AuthProvider>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar visible on all pages */}
+      <Navbar />
+
+      {/* Page content */}
+      <main className="pt-4">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/lessons" element={<Lessons />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/payments" element={<Payments />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
