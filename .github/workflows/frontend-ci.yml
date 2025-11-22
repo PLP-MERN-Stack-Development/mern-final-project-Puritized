@@ -36,7 +36,7 @@ jobs:
 
       - name: Build frontend
         working-directory: ./frontend
-        run: npm run build
+        run: npx vite build
 
       - name: Upload production build
         uses: actions/upload-artifact@v4

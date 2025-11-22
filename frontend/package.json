@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "npx vite build",
-    "postinstall": "npx vite build",
     "preview": "vite preview",
     "start": "vite"
   },
