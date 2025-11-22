@@ -1,9 +1,6 @@
 import express from 'express';
 import http from 'http';
-import 'dotenv/config'; // simplest way
-// OR
-import dotenv from 'dotenv';
-dotenv.config();
+import 'dotenv/config';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectDB from './config/db.js';
@@ -27,7 +24,6 @@ import errorHandler from './middleware/errorHandler.js';
 // SOCKET.IO
 import attachSocket from './sockets/socketServer.js';
 
-dotenv.config();
 connectDB();
 
 const app = express();
@@ -39,21 +35,28 @@ const app = express();
 // JSON parser (exclude webhook)
 app.use((req, res, next) => {
   if (req.originalUrl.includes("/api/payments/webhook")) {
-    next(); // Stripe/Paystack require raw body
+    next();
   } else {
     express.json()(req, res, next);
   }
 });
 
+// CORS for both REST API and Socket.io
+const allowedOrigins = [
+  process.env.CLIENT_URL, // frontend URL from .env (Render)
+  'http://localhost:5173', // optional local dev
+  'http://localhost:3000'
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: allowedOrigins,
   credentials: true
 }));
 
 app.use(cookieParser());
 
 /* ------------------------------------------
-   ROOT ROUTE (for testing)
+   ROOT ROUTE
 ------------------------------------------- */
 app.get('/', (req, res) => {
   res.send('🚀 Server is running! Welcome to Puritized API.');
@@ -62,12 +65,9 @@ app.get('/', (req, res) => {
 /* ------------------------------------------
    ROUTES
 ------------------------------------------- */
-
-// AUTH ROUTES
 app.use('/routes/auth', authRoutes);
 app.use('/routes/auth/refresh', refreshRoutes);
 
-// PLATFORM FEATURE ROUTES
 app.use("/routes/courses", courseRoutes);
 app.use("/routes/lessons", lessonRoutes);
 app.use("/routes/bookings", bookingRoutes);
@@ -88,8 +88,8 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
-// Attach Socket.io server
-const io = attachSocket(server);
+// Attach Socket.io with CORS config
+const io = attachSocket(server, allowedOrigins);
 
 server.listen(PORT, () =>
   console.log(`🚀 Server running on port ${PORT} with Socket.io`)

@@ -6,8 +6,18 @@ import eventBus from '../utils/events.js';
 const onlineUsers = new Map(); // track connected users
 
 export default function attachSocket(server) {
+  // Allow multiple origins (local dev + Render frontend)
+  const allowedOrigins = [
+    process.env.CLIENT_URL || '*',       // your deployed frontend on Render
+    'http://localhost:5173',             // optional local dev Vite
+    'http://localhost:3000'              // optional React dev
+  ];
+
   const io = new SocketIOServer(server, {
-    cors: { origin: process.env.CLIENT_URL || '*', credentials: true },
+    cors: {
+      origin: allowedOrigins,
+      credentials: true
+    },
     pingTimeout: 30000
   });
 
@@ -21,7 +31,6 @@ export default function attachSocket(server) {
       if (!userId) return;
       socket.join(userId);
       onlineUsers.set(userId, socket.id);
-
       io.emit('user:online', { userId, online: true });
     });
 
@@ -40,7 +49,6 @@ export default function attachSocket(server) {
       try {
         if (!conversationId || !sender || !content) return;
 
-        // store message
         const msg = await Message.create({
           conversation: conversationId,
           sender,
@@ -48,12 +56,9 @@ export default function attachSocket(server) {
           attachments
         });
 
-        // fetch conversation details
         const conv = await Conversation.findById(conversationId);
-
         if (!conv) return;
 
-        // update unread counts for all members EXCEPT sender
         const updates = {};
         conv.members.forEach((member) => {
           if (member.toString() !== sender.toString()) {
@@ -66,10 +71,8 @@ export default function attachSocket(server) {
           $inc: updates
         });
 
-        // send message to room
         io.to(`conv_${conversationId}`).emit('message:received', msg);
 
-        // notify all members except sender
         conv.members.forEach((userId) => {
           if (userId.toString() !== sender.toString()) {
             io.to(userId.toString()).emit('notification', {
@@ -80,9 +83,7 @@ export default function attachSocket(server) {
           }
         });
 
-        // analytics hook
         eventBus.emit('analytics:newMessage', { conversationId, sender });
-
       } catch (err) {
         console.error('Socket message error', err);
       }
@@ -97,10 +98,7 @@ export default function attachSocket(server) {
           $set: { [`unreadCounts.${userId}`]: 0 }
         });
 
-        io.to(`conv_${conversationId}`).emit('message:read:update', {
-          conversationId,
-          userId
-        });
+        io.to(`conv_${conversationId}`).emit('message:read:update', { conversationId, userId });
       } catch (e) {
         console.error('Read receipt error', e);
       }
@@ -134,24 +132,19 @@ export default function attachSocket(server) {
   /* --------------------------------------
      GLOBAL EVENT BUS HOOKS
   -----------------------------------------*/
-  
-  // notifications from anywhere (e.g., Booking, Payment, Admin)
   eventBus.on('notification:send', ({ userId, payload }) => {
     io.to(userId).emit('notification', payload);
   });
 
-  // on successful payment — notify student + tutor
   eventBus.on('payment:success', ({ bookingId, studentId, tutorId }) => {
     io.to(studentId).emit('payment:update', { bookingId, status: 'paid' });
     io.to(tutorId).emit('payment:update', { bookingId, status: 'paid' });
   });
 
-  // booking updates
   eventBus.on('booking:update', ({ userId, payload }) => {
     io.to(userId).emit('booking:update', payload);
   });
 
-  // admin analytics hook (sending live metrics to admin dashboard)
   eventBus.on('analytics:update', (data) => {
     io.to('admin_dashboard_room').emit('analytics:live', data);
   });
