@@ -8,41 +8,55 @@ export default function Dashboard() {
   const { data: lessons, isLoading: lessonsLoading } = useLessons();
 
   return (
-    <div className="flex pt-16"> {/* pt-16 to offset Navbar height */}
+    <div className="flex pt-16 min-h-screen bg-gray-50">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main content */}
       <main className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Courses</h2>
+        {/* Courses Section */}
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Courses</h2>
           {coursesLoading ? (
             <p>Loading courses...</p>
           ) : (
-            <ul className="space-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {courses?.map((course) => (
-                <li key={course._id} className="p-2 border rounded">
-                  {course.title}
-                </li>
+                <div
+                  key={course._id}
+                  className="p-4 border rounded shadow hover:shadow-lg transition-shadow bg-white"
+                >
+                  <h3 className="text-lg font-semibold">{course.title}</h3>
+                  {course.description && (
+                    <p className="text-gray-600 mt-2 text-sm">{course.description}</p>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </section>
 
+        {/* Lessons Section */}
         <section>
-          <h2 className="text-xl font-semibold mb-2">Lessons</h2>
+          <h2 className="text-xl font-semibold mb-4">Lessons</h2>
           {lessonsLoading ? (
             <p>Loading lessons...</p>
           ) : (
-            <ul className="space-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {lessons?.map((lesson) => (
-                <li key={lesson._id} className="p-2 border rounded">
-                  {lesson.title}
-                </li>
+                <div
+                  key={lesson._id}
+                  className="p-4 border rounded shadow hover:shadow-lg transition-shadow bg-white"
+                >
+                  <h3 className="text-lg font-semibold">{lesson.title}</h3>
+                  {lesson.description && (
+                    <p className="text-gray-600 mt-2 text-sm">{lesson.description}</p>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </section>
       </main>

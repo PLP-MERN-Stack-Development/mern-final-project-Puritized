@@ -1,25 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import socket, { connectSocket } from '../utils/socket';
 import { useAuth } from '../contexts/AuthContext';
-
-const socket = io('https://mern-final-project-puritized.onrender.com');
 
 export default function ChatBox() {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
+  // Connect socket when user is available
   useEffect(() => {
-    socket.on('message', (msg) => {
+    if (user?.id) {
+      connectSocket(user.id);
+    }
+
+    socket.on('message:received', (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
 
-    return () => socket.off('message');
-  }, []);
+    return () => {
+      socket.off('message:received');
+    };
+  }, [user]);
 
   const sendMessage = () => {
-    if (input.trim()) {
-      socket.emit('message', { user: user.name, text: input });
+    if (input.trim() && user?.id) {
+      socket.emit('message:send', {
+        conversationId: 'default', // replace with actual conversationId if needed
+        sender: user.id,
+        content: input,
+      });
       setInput('');
     }
   };
@@ -29,8 +38,8 @@ export default function ChatBox() {
       <div className="flex-1 overflow-y-auto mb-2">
         {messages.map((msg, idx) => (
           <div key={idx} className="my-1">
-            <strong>{msg.user}: </strong>
-            {msg.text}
+            <strong>{msg.senderName || 'User'}: </strong>
+            {msg.content}
           </div>
         ))}
       </div>

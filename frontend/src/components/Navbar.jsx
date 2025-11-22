@@ -9,7 +9,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
       <Link to="/" className="text-xl font-bold text-blue-600">
-        EduBridge - E-Learning Marketplace(SDG4)
+        EduBridge - E-Learning Marketplace (SDG4)
       </Link>
 
       <div className="flex items-center space-x-4">
@@ -22,7 +22,9 @@ export default function Navbar() {
         <Link to="/chat" className="hover:text-blue-500">
           Chat
         </Link>
+
         <NotificationBell />
+
         {user ? (
           <button
             onClick={logout}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider as RQProvider } from '@tanstack/react-query';
 
-// Create a single client
+// Create a single QueryClient instance
 const queryClient = new QueryClient();
 
 export const QueryClientProvider = ({ children }) => {

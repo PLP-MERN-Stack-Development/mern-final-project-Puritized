@@ -11,24 +11,30 @@ export default function Payments() {
       <Sidebar />
 
       <main className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-4">Payments</h1>
+        <h1 className="text-2xl font-bold mb-6">Payments</h1>
 
-        <section className="mb-6">
+        {/* Payment Form */}
+        <section className="mb-8">
           <PaymentForm />
         </section>
 
+        {/* Recent Payments */}
         <section>
-          <h2 className="text-xl font-semibold mb-2">Recent Payments</h2>
+          <h2 className="text-xl font-semibold mb-4">Recent Payments</h2>
           {isLoading ? (
             <p>Loading payments...</p>
-          ) : (
+          ) : payments?.length ? (
             <ul className="space-y-2">
-              {payments?.map((p) => (
-                <li key={p._id} className="p-2 border rounded">
-                  {p.user?.name} paid ${p.amount} on {new Date(p.createdAt).toLocaleDateString()}
+              {payments.map((p) => (
+                <li key={p._id} className="p-3 border rounded shadow-sm hover:shadow-md transition-shadow">
+                  <span className="font-medium">{p.user?.name}</span> paid{' '}
+                  <span className="font-semibold">${p.amount}</span> on{' '}
+                  {new Date(p.createdAt).toLocaleDateString()}
                 </li>
               ))}
             </ul>
+          ) : (
+            <p>No payments found.</p>
           )}
         </section>
       </main>

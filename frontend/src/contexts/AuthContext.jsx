@@ -4,6 +4,9 @@ import axios from 'axios';
 // Create context
 const AuthContext = createContext();
 
+// Backend base URL (from environment variable or fallback)
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://mern-final-project-puritized.onrender.com';
+
 // Provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -13,16 +16,17 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get('https://mern-final-project-puritized.onrender.com/routes/auth/me', {
-          withCredentials: true
+        const res = await axios.get(`${BACKEND_URL}/routes/auth/me`, {
+          withCredentials: true,
         });
-        setUser(res.data.user);
+        setUser(res?.data?.user || null);
       } catch (err) {
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
+
     fetchUser();
   }, []);
 
@@ -32,10 +36,10 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post('https://api.render.com/deploy/srv-abc123?key=xyz456/routes/auth/logout', {}, { withCredentials: true });
+      await axios.post(`${BACKEND_URL}/routes/auth/logout`, {}, { withCredentials: true });
       setUser(null);
     } catch (err) {
-      console.error(err);
+      console.error('Logout failed:', err);
     }
   };
 

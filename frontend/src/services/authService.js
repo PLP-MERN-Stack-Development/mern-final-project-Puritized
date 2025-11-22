@@ -2,19 +2,30 @@ import http from './http';
 
 let accessToken = null;
 
-export const setAccessToken = (t) => { accessToken = t; };
+export const setAccessToken = (token) => { accessToken = token; };
 export const getAccessToken = () => accessToken;
 
-// login
+/* -------------------------------
+   Login
+---------------------------------*/
 export const login = async (email, password) => {
-  const data = await http.request('/auth/login', { method: 'POST', body: { email, password } });
-  accessToken = data.accessToken || data.token;
+  const data = await http.request('/routes/auth/login', {
+    method: 'POST',
+    body: { email, password }
+  });
+  accessToken = data.accessToken || data.token; // save token
   return data;
 };
 
-// refresh token using cookie: endpoint returns new accessToken
+/* -------------------------------
+   Refresh access token using cookie
+   (backend endpoint should return new accessToken)
+---------------------------------*/
 export const refreshAccessToken = async () => {
-  const data = await http.request('/auth/refresh', { method: 'POST', token: null });
+  const data = await http.request('/routes/auth/refresh', {
+    method: 'GET',
+    token: null // use cookie for refresh
+  });
   accessToken = data.accessToken;
   return data;
 };

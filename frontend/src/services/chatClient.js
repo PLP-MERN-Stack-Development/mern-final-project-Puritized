@@ -1,17 +1,36 @@
 import { io } from 'socket.io-client';
+
 let socket;
 
+/* --------------------------------------
+   Connect Socket.IO client with optional token
+----------------------------------------*/
 export const connectSocket = (token) => {
-  socket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000', {
-    auth: { token } // optional: pass token then server must verify
+  if (socket) return socket; // prevent multiple connections
+
+  socket = io(process.env.VITE_BACKEND_URL || 'https://mern-final-project-puritized.onrender.com', {
+    withCredentials: true,
+    auth: token ? { token } : undefined, // optional auth token
   });
 
-  socket.on('connect', () => console.log('socket connected', socket.id));
-  socket.on('disconnect', () => console.log('socket disconnected'));
+  socket.on('connect', () => console.log('Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log('Socket disconnected'));
+
   return socket;
 };
 
-export const joinConversation = (conversationId) => socket.emit('join:conversation', { conversationId });
+/* --------------------------------------
+   Join a conversation room
+----------------------------------------*/
+export const joinConversation = (conversationId) => {
+  if (!socket) return;
+  socket.emit('join:conversation', { conversationId });
+};
 
-export const sendMessage = ({ conversationId, sender, content }) =>
-  socket.emit('message:send', { conversationId, sender, content });
+/* --------------------------------------
+   Send message to a conversation
+----------------------------------------*/
+export const sendMessage = ({ conversationId, sender, content, attachments = [] }) => {
+  if (!socket) return;
+  socket.emit('message:send', { conversationId, sender, content, attachments });
+};

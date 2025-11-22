@@ -1,7 +1,9 @@
 import http from './http';
 import { getAccessToken, refreshAccessToken } from './authService';
 
-// simple wrapper to auto-refresh on 401
+/* --------------------------------------
+   Helper: auto-refresh token on 401
+----------------------------------------*/
 async function withAuth(requestFn) {
   try {
     return await requestFn(getAccessToken());
@@ -14,10 +16,18 @@ async function withAuth(requestFn) {
   }
 }
 
-export const initiatePayment = (payload) => withAuth((token) =>
-  http.request('/payments/init', { method: 'POST', body: payload, token })
-);
+/* --------------------------------------
+   Payments API
+----------------------------------------*/
 
-export const getPaymentStatus = (id) => withAuth((token) =>
-  http.request(`/payments/${id}/status`, { method: 'GET', token })
-);
+// Initiate a payment
+export const initiatePayment = (payload) =>
+  withAuth((token) =>
+    http.request('/routes/payments/init', { method: 'POST', body: payload, token })
+  );
+
+// Check payment status
+export const getPaymentStatus = (id) =>
+  withAuth((token) =>
+    http.request(`/routes/payments/${id}/status`, { method: 'GET', token })
+  );
