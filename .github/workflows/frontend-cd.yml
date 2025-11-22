@@ -11,26 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Install frontend dependencies
+      # Install frontend dependencies
+      - name: Install dependencies
         working-directory: frontend
         run: npm install
 
-      - name: Fix permissions for node binaries
-        working-directory: frontend
-        run: chmod -R +x ./node_modules/.bin
-
+      # Build frontend
       - name: Build frontend
         working-directory: frontend
-        run: npx vite build
+        run: npm run build
 
+      # Optional: verify that dist/ exists
+      - name: Verify build
+        working-directory: frontend
+        run: ls -la dist
+
+      # Trigger Render deploy hook
       - name: Trigger Render Deploy
         run: |
           curl -X POST "$RENDER_DEPLOY_HOOK_URL"
