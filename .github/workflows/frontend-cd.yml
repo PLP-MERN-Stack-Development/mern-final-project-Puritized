@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Frontend to Render
+    name: Build & Deploy Frontend to Render
     runs-on: ubuntu-latest
 
     steps:
@@ -31,18 +31,20 @@ jobs:
         working-directory: frontend
         run: npx vite build
 
-      - name: Verify dist exists
-        working-directory: frontend
+      - name: Verify build output
         run: |
-          if [ ! -d "dist" ]; then
-            echo "❌ Build failed: dist folder does not exist!"
+          if [ ! -d "frontend/dist" ]; then
+            echo "frontend/dist does not exist, build failed!"
             exit 1
-          else
-            echo "✅ dist folder exists, ready to deploy"
           fi
 
+      - name: Upload dist to Render
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
       - name: Trigger Render Deploy
-        if: success()  # only trigger if dist exists
         run: |
           curl -X POST "$RENDER_DEPLOY_HOOK_URL"
         env:
