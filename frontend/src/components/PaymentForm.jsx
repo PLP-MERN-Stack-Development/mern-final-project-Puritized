@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import axios from 'axios';
-import socket from '../utils/socket';
+import socket from '../services/socket.js';
 import { useAuth } from '../contexts/AuthContext';
 
 const schema = yup.object({
