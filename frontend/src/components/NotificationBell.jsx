@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaBell } from 'react-icons/fa6';
 import axios from 'axios';
-import socket from '../utils/socket'; // make sure this points to your socket.js
+import socket from '../src/socket'; // make sure this points to your socket.js
 import { useAuth } from '../contexts/AuthContext';
 
 export default function NotificationBell() {
