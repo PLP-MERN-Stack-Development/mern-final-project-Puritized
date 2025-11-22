@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # required to push
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -25,14 +25,12 @@ jobs:
         working-directory: frontend
         run: npm install
 
-      - name: Build production
+      - name: Build frontend
         working-directory: frontend
         run: npm run build
 
-      - name: Trigger Render deploy
-        uses: jakejarvis/render-deploy-action@v1
+      - name: Deploy to Render
+        uses: render-examples/deploy-static-site@v1
         with:
-          api_key: ${{ secrets.RENDER_API_KEY }}
-          service_id: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
-          branch: main
-          directory: frontend/dist
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          service-id: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
