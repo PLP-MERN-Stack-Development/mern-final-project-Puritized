@@ -4,9 +4,6 @@
 /backend/node_modules
 
 # Build outputs
-/frontend/dist
-/backend/build
-/backend/dist
 
 # Logs
 *.log
