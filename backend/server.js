@@ -4,6 +4,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectDB from './config/db.js';
+import jwt from 'jsonwebtoken';
 
 // AUTH & REFRESH
 import authRoutes from './routes/auth.js';
@@ -23,6 +24,8 @@ import errorHandler from './middleware/errorHandler.js';
 
 // SOCKET.IO
 import attachSocket from './sockets/socketServer.js';
+
+import User from './models/User.js'; // required for /me route
 
 connectDB();
 
@@ -56,10 +59,45 @@ app.use(cors({
 app.use(cookieParser());
 
 /* ------------------------------------------
+   AUTHENTICATION MIDDLEWARE
+------------------------------------------- */
+const requireAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: 'No token provided' });
+
+    const token = authHeader.split(' ')[1]; // Bearer <token>
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+    req.user = user;
+    next();
+  } catch (err) {
+    console.error(err);
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+};
+
+/* ------------------------------------------
    ROOT ROUTE
 ------------------------------------------- */
 app.get('/', (req, res) => {
   res.send('🚀 Server is running! Welcome to Puritized API.');
+});
+
+/* ------------------------------------------
+   CURRENT USER ROUTE (/me)
+------------------------------------------- */
+app.get('/routes/auth/me', requireAuth, async (req, res) => {
+  try {
+    return res.json({ user: req.user.toJSON() });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
 });
 
 /* ------------------------------------------

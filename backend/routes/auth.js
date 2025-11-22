@@ -5,6 +5,9 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
+// -----------------------
+// Schemas
+// -----------------------
 const registerSchema = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
@@ -17,6 +20,9 @@ const loginSchema = Joi.object({
   password: Joi.string().required(),
 });
 
+// -----------------------
+// JWT Helpers
+// -----------------------
 const generateAccessToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role },
@@ -33,7 +39,32 @@ const generateRefreshToken = (user) => {
   );
 };
 
+// -----------------------
+// Middleware to protect routes
+// -----------------------
+const requireAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: 'No token provided' });
+
+    const token = authHeader.split(' ')[1]; // Bearer <token>
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+    req.user = user;
+    next();
+  } catch (err) {
+    console.error(err);
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+};
+
+// -----------------------
 // REGISTER
+// -----------------------
 router.post('/register', async (req, res, next) => {
   try {
     const { error, value } = registerSchema.validate(req.body);
@@ -68,7 +99,9 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
+// -----------------------
 // LOGIN
+// -----------------------
 router.post('/login', async (req, res, next) => {
   try {
     const { error, value } = loginSchema.validate(req.body);
@@ -97,6 +130,34 @@ router.post('/login', async (req, res, next) => {
 
   } catch (err) {
     next(err);
+  }
+});
+
+// -----------------------
+// GET CURRENT USER (/me)
+// -----------------------
+router.get('/me', requireAuth, async (req, res) => {
+  try {
+    return res.json({ user: req.user.toJSON() });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// -----------------------
+// LOGOUT
+// -----------------------
+router.post('/logout', requireAuth, async (req, res) => {
+  try {
+    req.user.refreshToken = null;
+    await req.user.save();
+
+    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax' });
+    return res.json({ message: 'Logged out successfully' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 

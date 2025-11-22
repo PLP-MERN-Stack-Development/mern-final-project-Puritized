@@ -15,13 +15,15 @@ export const AuthProvider = ({ children }) => {
     if (!user) {
       const fetchUser = async () => {
         try {
-          // Update route to match backend
-          const res = await axios.get(`${BACKEND_URL}/api/auth/me`, {
+          // UPDATED: correct backend route
+          const res = await axios.get(`${BACKEND_URL}/routes/auth/me`, {
             withCredentials: true,
           });
+
           const fetchedUser = res?.data?.user || null;
           setUser(fetchedUser);
           if (fetchedUser) saveUser(fetchedUser);
+
         } catch (err) {
           setUser(null);
           clearUser();
@@ -30,6 +32,7 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         }
       };
+
       fetchUser();
     } else {
       setLoading(false); // user already loaded from localStorage
@@ -43,9 +46,14 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post(`${BACKEND_URL}/api/auth/logout`, {}, { withCredentials: true });
+      // UPDATED: correct backend route
+      await axios.post(`${BACKEND_URL}/routes/auth/logout`, {}, {
+        withCredentials: true
+      });
+
       setUser(null);
       clearUser();
+
     } catch (err) {
       console.error('Logout failed:', err);
     }
