@@ -1,7 +1,9 @@
 name: Frontend CD
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main   # deploy on push to main branch
   release:
     types: [published]
 
@@ -37,12 +39,6 @@ jobs:
             echo "frontend/dist does not exist, build failed!"
             exit 1
           fi
-
-      - name: Upload dist to Render
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist
 
       - name: Trigger Render Deploy
         run: |
