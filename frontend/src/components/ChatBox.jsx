@@ -1,35 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import socket from '../services/socket.js';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { socket } from "../services/socket.js";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function ChatBox() {
   const { user, loading } = useAuth();
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
-  // Connect socket when user is available
   useEffect(() => {
     if (!loading && user?.id) {
-      connectSocket(user.id);
-
-      socket.on('message:received', (msg) => {
+      // Listen for incoming messages
+      socket.on("message:received", (msg) => {
         setMessages((prev) => [...prev, msg]);
       });
     }
 
     return () => {
-      socket.off('message:received');
+      socket.off("message:received");
     };
   }, [user, loading]);
 
   const sendMessage = () => {
     if (input.trim() && user?.id) {
-      socket.emit('message:send', {
-        conversationId: 'default', // Replace with actual conversationId if needed
+      socket.emit("message:send", {
+        conversationId: "default", // Replace with real conversation ID
         sender: user.id,
         content: input,
       });
-      setInput('');
+      setInput("");
     }
   };
 
@@ -46,11 +44,12 @@ export default function ChatBox() {
       <div className="flex-1 overflow-y-auto mb-2">
         {messages.map((msg, idx) => (
           <div key={idx} className="my-1">
-            <strong>{msg.senderName || 'User'}: </strong>
+            <strong>{msg.senderName || "User"}: </strong>
             {msg.content}
           </div>
         ))}
       </div>
+
       <div className="flex">
         <input
           type="text"
@@ -59,6 +58,7 @@ export default function ChatBox() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
         />
+
         <button
           onClick={sendMessage}
           className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"

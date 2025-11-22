@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaBell } from 'react-icons/fa6';
 import axios from 'axios';
-import socket from '../socket.js'; // make sure this points to your socket.js
+import { socket } from '../services/socket.js';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function NotificationBell() {
@@ -11,7 +11,7 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!user) return;
 
-    // Fetch initial notifications from backend
+    // Fetch initial notifications
     const fetchNotifications = async () => {
       try {
         const res = await axios.get(
@@ -26,9 +26,8 @@ export default function NotificationBell() {
 
     fetchNotifications();
 
-    // Connect to Socket.io and join user room
-    socket.connect();
-    socket.emit('join', { userId: user._id });
+    // Join Socket.io user room
+    socket.emit('join', { userId: user.id });
 
     // Listen for new notifications
     socket.on('notification', (payload) => {
@@ -37,7 +36,6 @@ export default function NotificationBell() {
 
     return () => {
       socket.off('notification');
-      socket.disconnect();
     };
   }, [user]);
 
