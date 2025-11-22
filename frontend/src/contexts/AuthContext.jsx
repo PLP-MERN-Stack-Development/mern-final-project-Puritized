@@ -4,27 +4,35 @@ import { saveUser, loadUser, clearUser } from '../services/storage.js'; // adjus
 
 const AuthContext = createContext();
 
+// Use VITE_BACKEND_URL or fallback
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://mern-final-project-puritized.onrender.com';
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(loadUser()); // load from localStorage
+  const [user, setUser] = useState(loadUser()); // load persisted user
   const [loading, setLoading] = useState(!user); // only loading if no persisted user
 
   useEffect(() => {
     if (!user) {
       const fetchUser = async () => {
         try {
-          const res = await axios.get(`${BACKEND_URL}/routes/auth/me`, { withCredentials: true });
-          setUser(res?.data?.user || null);
-          if (res?.data?.user) saveUser(res.data.user);
+          // Update route to match backend
+          const res = await axios.get(`${BACKEND_URL}/api/auth/me`, {
+            withCredentials: true,
+          });
+          const fetchedUser = res?.data?.user || null;
+          setUser(fetchedUser);
+          if (fetchedUser) saveUser(fetchedUser);
         } catch (err) {
           setUser(null);
           clearUser();
+          console.error('Fetch current user failed:', err);
         } finally {
           setLoading(false);
         }
       };
       fetchUser();
+    } else {
+      setLoading(false); // user already loaded from localStorage
     }
   }, [user]);
 
@@ -35,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post(`${BACKEND_URL}/routes/auth/logout`, {}, { withCredentials: true });
+      await axios.post(`${BACKEND_URL}/api/auth/logout`, {}, { withCredentials: true });
       setUser(null);
       clearUser();
     } catch (err) {

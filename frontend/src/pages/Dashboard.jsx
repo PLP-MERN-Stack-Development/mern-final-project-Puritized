@@ -4,8 +4,8 @@ import { useCourses } from '../api/courses';
 import { useLessons } from '../api/lessons';
 
 export default function Dashboard() {
-  const { data: courses, isLoading: coursesLoading } = useCourses();
-  const { data: lessons, isLoading: lessonsLoading } = useLessons();
+  const { data: courses, isLoading: coursesLoading, isError: coursesError } = useCourses();
+  const { data: lessons, isLoading: lessonsLoading, isError: lessonsError } = useLessons();
 
   return (
     <div className="flex pt-16 min-h-screen bg-gray-50">
@@ -21,6 +21,8 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold mb-4">Courses</h2>
           {coursesLoading ? (
             <p>Loading courses...</p>
+          ) : coursesError ? (
+            <p className="text-red-500">Failed to load courses.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {courses?.map((course) => (
@@ -43,6 +45,8 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold mb-4">Lessons</h2>
           {lessonsLoading ? (
             <p>Loading lessons...</p>
+          ) : lessonsError ? (
+            <p className="text-red-500">Failed to load lessons.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {lessons?.map((lesson) => (
