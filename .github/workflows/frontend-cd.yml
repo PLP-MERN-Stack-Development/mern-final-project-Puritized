@@ -40,8 +40,13 @@ jobs:
             exit 1
           fi
 
+      - name: Zip frontend/dist folder
+        working-directory: frontend
+        run: |
+          zip -r dist.zip dist
+
       - name: Trigger Render Deploy
         run: |
-          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+          curl -X POST -F "file=@frontend/dist/dist.zip" "$RENDER_DEPLOY_HOOK_URL"
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
