@@ -1,41 +1,38 @@
 name: Frontend CD
 
 on:
-  workflow_dispatch:    # manual trigger
+  workflow_dispatch:
   release:
     types: [published]
 
 jobs:
   deploy:
-    name: Deploy Frontend to GitHub Pages
+    name: Deploy Frontend to Render
     runs-on: ubuntu-latest
 
     steps:
-      # 1️ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # required to push
 
-      # 2️ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 3️ Install dependencies in frontend folder
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm install
 
-      # 4️ Build frontend
-      - name: Build frontend
+      - name: Build production
         working-directory: frontend
         run: npm run build
 
-      # 5️ Deploy to GitHub Pages using PAT
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Trigger Render deploy
+        uses: jakejarvis/render-deploy-action@v1
         with:
-          personal_token: ${{ secrets.GH_PAT }}   # <- your PAT secret
-          publish_dir: frontend/dist
-          force_orphan: true   # create gh-pages branch if missing
-          commit_message: "Deploy frontend via GitHub Actions"
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          service_id: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
+          branch: main
+          directory: frontend/dist
