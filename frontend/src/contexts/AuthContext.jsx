@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { saveUser, loadUser, clearUser } from '../utils/storage'; // adjust path
+import { saveUser, loadUser, clearUser } from '../service/storage.js'; // adjust path
 
 const AuthContext = createContext();
 
