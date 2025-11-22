@@ -11,33 +11,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # Install frontend dependencies
-      - name: Install dependencies
+      - name: Install frontend dependencies
         working-directory: frontend
         run: npm install
 
-      # Build frontend
+      - name: Fix permissions for node binaries
+        working-directory: frontend
+        run: chmod -R +x ./node_modules/.bin
+
       - name: Build frontend
         working-directory: frontend
-        run: npm run build
+        run: npx vite build
 
-      # Optional: verify that dist/ exists
-      - name: Verify build
+      - name: Verify dist exists
         working-directory: frontend
-        run: ls -la dist
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed: dist folder does not exist!"
+            exit 1
+          else
+            echo "✅ dist folder exists, ready to deploy"
+          fi
 
-      # Trigger Render deploy hook
       - name: Trigger Render Deploy
+        if: success()  # only trigger if dist exists
         run: |
           curl -X POST "$RENDER_DEPLOY_HOOK_URL"
         env:
