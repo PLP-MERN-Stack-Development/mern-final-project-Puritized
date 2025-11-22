@@ -3,35 +3,43 @@ import socket, { connectSocket } from '../utils/socket';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function ChatBox() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
   // Connect socket when user is available
   useEffect(() => {
-    if (user?.id) {
+    if (!loading && user?.id) {
       connectSocket(user.id);
-    }
 
-    socket.on('message:received', (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
+      socket.on('message:received', (msg) => {
+        setMessages((prev) => [...prev, msg]);
+      });
+    }
 
     return () => {
       socket.off('message:received');
     };
-  }, [user]);
+  }, [user, loading]);
 
   const sendMessage = () => {
     if (input.trim() && user?.id) {
       socket.emit('message:send', {
-        conversationId: 'default', // replace with actual conversationId if needed
+        conversationId: 'default', // Replace with actual conversationId if needed
         sender: user.id,
         content: input,
       });
       setInput('');
     }
   };
+
+  if (loading) {
+    return <p className="text-gray-500">Loading chat...</p>;
+  }
+
+  if (!user) {
+    return <p className="text-red-500">Please log in to chat.</p>;
+  }
 
   return (
     <div className="flex flex-col h-full border rounded p-4">

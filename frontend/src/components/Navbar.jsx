@@ -4,7 +4,7 @@ import NotificationBell from './NotificationBell';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
 
   return (
     <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
@@ -25,7 +25,10 @@ export default function Navbar() {
 
         <NotificationBell />
 
-        {user ? (
+        {/* Show loading spinner while checking auth */}
+        {loading ? (
+          <span className="text-gray-500">Checking...</span>
+        ) : user ? (
           <button
             onClick={logout}
             className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"

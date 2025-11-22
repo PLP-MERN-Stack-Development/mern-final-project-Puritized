@@ -1,43 +1,43 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { saveUser, loadUser, clearUser } from '../utils/storage'; // adjust path
 
-// Create context
 const AuthContext = createContext();
 
-// Backend base URL (from environment variable or fallback)
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://mern-final-project-puritized.onrender.com';
 
-// Provider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(loadUser()); // load from localStorage
+  const [loading, setLoading] = useState(!user); // only loading if no persisted user
 
-  // Fetch current user from backend on mount
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`${BACKEND_URL}/routes/auth/me`, {
-          withCredentials: true,
-        });
-        setUser(res?.data?.user || null);
-      } catch (err) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+    if (!user) {
+      const fetchUser = async () => {
+        try {
+          const res = await axios.get(`${BACKEND_URL}/routes/auth/me`, { withCredentials: true });
+          setUser(res?.data?.user || null);
+          if (res?.data?.user) saveUser(res.data.user);
+        } catch (err) {
+          setUser(null);
+          clearUser();
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchUser();
+    }
+  }, [user]);
 
   const login = (userData) => {
     setUser(userData);
+    saveUser(userData);
   };
 
   const logout = async () => {
     try {
       await axios.post(`${BACKEND_URL}/routes/auth/logout`, {}, { withCredentials: true });
       setUser(null);
+      clearUser();
     } catch (err) {
       console.error('Logout failed:', err);
     }
