@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import socket, { socket } from '../services/socket.js';
+import socket from '../services/socket.js';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function ChatBox() {
