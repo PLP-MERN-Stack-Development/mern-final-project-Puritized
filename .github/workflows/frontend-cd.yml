@@ -23,9 +23,13 @@ jobs:
         working-directory: frontend
         run: npm install
 
+      - name: Fix permissions for node binaries
+        working-directory: frontend
+        run: chmod -R +x ./node_modules/.bin
+
       - name: Build frontend
         working-directory: frontend
-        run: npm run build
+        run: npx vite build
 
       - name: Trigger Render Deploy
         run: |

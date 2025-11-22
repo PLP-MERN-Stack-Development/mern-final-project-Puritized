@@ -38,6 +38,7 @@ jobs:
         working-directory: ./frontend
         run: npx vite build
 
+      # Optional: keep for debugging
       - name: Upload production build
         uses: actions/upload-artifact@v4
         with:
