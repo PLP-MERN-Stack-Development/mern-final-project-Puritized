@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/', // ✅ important: ensures assets are loaded from root
   server: {
     port: 5173,
     // Proxy API requests to backend in development
@@ -24,7 +25,6 @@ export default defineConfig({
     }
   },
   build: {
-    // ensure the frontend uses the correct base URL when deployed
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
