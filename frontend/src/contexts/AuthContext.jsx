@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { saveUser, loadUser, clearUser } from '../services/storage.js'; // adjust path
+import { saveUser, loadUser, clearUser } from '../services/storage.js';
 
 const AuthContext = createContext();
 
@@ -8,15 +8,15 @@ const AuthContext = createContext();
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://mern-final-project-puritized.onrender.com';
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(loadUser()); // load persisted user
-  const [loading, setLoading] = useState(!user); // only loading if no persisted user
+  const [user, setUser] = useState(loadUser());
+  const [loading, setLoading] = useState(!user);
 
   useEffect(() => {
     if (!user) {
       const fetchUser = async () => {
         try {
-          // UPDATED: correct backend route
-          const res = await axios.get(`${BACKEND_URL}/routes/auth/me`, {
+          // FIXED ROUTE
+          const res = await axios.get(`${BACKEND_URL}/api/auth/me`, {
             withCredentials: true,
           });
 
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
       fetchUser();
     } else {
-      setLoading(false); // user already loaded from localStorage
+      setLoading(false);
     }
   }, [user]);
 
@@ -46,8 +46,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      // UPDATED: correct backend route
-      await axios.post(`${BACKEND_URL}/routes/auth/logout`, {}, {
+      // FIXED ROUTE
+      await axios.post(`${BACKEND_URL}/api/auth/logout`, {}, {
         withCredentials: true
       });
 
@@ -66,5 +66,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook
 export const useAuth = () => useContext(AuthContext);
