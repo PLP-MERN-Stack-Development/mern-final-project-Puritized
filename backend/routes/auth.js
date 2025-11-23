@@ -40,25 +40,27 @@ const generateRefreshToken = (user) => {
 };
 
 // -----------------------
-// Middleware to protect routes
+// Middleware using refreshToken cookie
 // -----------------------
 const requireAuth = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ message: 'No token provided' });
+    const refreshToken = req.cookies.refreshToken;
 
-    const token = authHeader.split(' ')[1]; // Bearer <token>
-    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+    if (!refreshToken)
+      return res.status(401).json({ message: "No token provided" });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
     const user = await User.findById(decoded.id);
-    if (!user) return res.status(401).json({ message: 'Unauthorized' });
+    if (!user)
+      return res.status(401).json({ message: "Unauthorized" });
 
     req.user = user;
     next();
+
   } catch (err) {
     console.error(err);
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
@@ -87,12 +89,15 @@ router.post('/register', async (req, res, next) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(201).json({ user: user.toJSON(), accessToken });
+    return res.status(201).json({
+      user: user.toJSON(),
+      accessToken,
+    });
 
   } catch (err) {
     next(err);
@@ -121,12 +126,15 @@ router.post('/login', async (req, res, next) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ accessToken, user: user.toJSON() });
+    return res.json({
+      accessToken,
+      user: user.toJSON()
+    });
 
   } catch (err) {
     next(err);
@@ -141,7 +149,7 @@ router.get('/me', requireAuth, async (req, res) => {
     return res.json({ user: req.user.toJSON() });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -153,11 +161,17 @@ router.post('/logout', requireAuth, async (req, res) => {
     req.user.refreshToken = null;
     await req.user.save();
 
-    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax' });
-    return res.json({ message: 'Logged out successfully' });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    return res.json({ message: "Logged out successfully" });
+
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
