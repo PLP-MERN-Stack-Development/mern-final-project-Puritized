@@ -1,69 +1,88 @@
-import React from 'react';
-import Sidebar from '../components/Sidebar';
-import { useCourses } from '../api/courses';
-import { useLessons } from '../api/lessons';
+import React from "react";
+import Sidebar from "../components/Sidebar";
+import { useCourses } from "../api/courses";
+import { useLessons } from "../api/lessons";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const { data: courses, isLoading: coursesLoading, isError: coursesError } = useCourses();
   const { data: lessons, isLoading: lessonsLoading, isError: lessonsError } = useLessons();
 
   return (
-    <div className="flex pt-16 min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main content */}
-      <main className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      {/* Main Content */}
+      <main className="flex-1 ml-64 pt-28 px-8 md:px-12">
+        <h1 className="text-3xl font-bold mb-12">Dashboard</h1>
 
         {/* Courses Section */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Courses</h2>
-          {coursesLoading ? (
-            <p>Loading courses...</p>
-          ) : coursesError ? (
-            <p className="text-red-500">Failed to load courses.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {courses?.map((course) => (
-                <div
-                  key={course._id}
-                  className="p-4 border rounded shadow hover:shadow-lg transition-shadow bg-white"
-                >
-                  <h3 className="text-lg font-semibold">{course.title}</h3>
-                  {course.description && (
-                    <p className="text-gray-600 mt-2 text-sm">{course.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+        <Section title="Courses" loading={coursesLoading} error={coursesError}>
+          <ItemGrid data={courses} loading={coursesLoading} />
+        </Section>
 
         {/* Lessons Section */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Lessons</h2>
-          {lessonsLoading ? (
-            <p>Loading lessons...</p>
-          ) : lessonsError ? (
-            <p className="text-red-500">Failed to load lessons.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lessons?.map((lesson) => (
-                <div
-                  key={lesson._id}
-                  className="p-4 border rounded shadow hover:shadow-lg transition-shadow bg-white"
-                >
-                  <h3 className="text-lg font-semibold">{lesson.title}</h3>
-                  {lesson.description && (
-                    <p className="text-gray-600 mt-2 text-sm">{lesson.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+        <Section title="Lessons" loading={lessonsLoading} error={lessonsError}>
+          <ItemGrid data={lessons} loading={lessonsLoading} />
+        </Section>
       </main>
+    </div>
+  );
+}
+
+/* ----------------------------------------- */
+/* Section Component                          */
+/* ----------------------------------------- */
+function Section({ title, loading, error, children }) {
+  return (
+    <section className="mb-12">
+      <h2 className="text-2xl font-semibold mb-6">{title}</h2>
+      {loading ? (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-32 w-full rounded-md" />
+          ))}
+        </div>
+      ) : error ? (
+        <p className="text-destructive">Failed to load {title.toLowerCase()}.</p>
+      ) : (
+        children
+      )}
+    </section>
+  );
+}
+
+/* ----------------------------------------- */
+/* Grid Component                             */
+/* ----------------------------------------- */
+function ItemGrid({ data, loading }) {
+  if (!data?.length && !loading) {
+    return <p className="text-muted-foreground">No items found.</p>;
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {loading
+        ? Array.from({ length: 6 }).map((_, idx) => (
+            <Card key={idx} className="p-4 rounded-md animate-pulse">
+              <Skeleton className="h-6 w-3/4 mb-2 rounded" />
+              <Skeleton className="h-4 w-full rounded" />
+            </Card>
+          ))
+        : data.map((item) => (
+            <Card key={item._id} className="transition-shadow hover:shadow-xl p-4 rounded-md">
+              <CardHeader>
+                <CardTitle className="mb-2">{item.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {item.description && (
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
     </div>
   );
 }

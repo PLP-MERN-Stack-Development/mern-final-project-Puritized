@@ -1,48 +1,66 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import NotificationBell from './NotificationBell';
-import { useAuth } from '../contexts/AuthContext';
+ import React from "react";
+import { Link } from "react-router-dom";
+import NotificationBell from "./NotificationBell";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Navbar() {
   const { user, logout, loading } = useAuth();
 
   return (
-    <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-      <Link to="/" className="text-xl font-bold text-blue-600">
-        EduBridge - E-Learning Marketplace (SDG4)
-      </Link>
-
-      <div className="flex items-center space-x-4">
-        <Link to="/courses" className="hover:text-blue-500">
-          Courses
-        </Link>
-        <Link to="/lessons" className="hover:text-blue-500">
-          Lessons
-        </Link>
-        <Link to="/chat" className="hover:text-blue-500">
-          Chat
-        </Link>
-
-        <NotificationBell />
-
-        {/* Show loading spinner while checking auth */}
-        {loading ? (
-          <span className="text-gray-500">Checking...</span>
-        ) : user ? (
-          <button
-            onClick={logout}
-            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
-        ) : (
+    <nav className="fixed top-0 left-0 w-full z-50 bg-background border-b border-border shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo / Brand */}
           <Link
-            to="/login"
-            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+            to="/"
+            className="text-lg font-bold text-primary hover:text-primary-foreground truncate"
           >
-            Login
+            EduBridge - E-Learning Marketplace (SDG4)
           </Link>
-        )}
+
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-4">
+            <Link
+              to="/courses"
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              Courses
+            </Link>
+            <Link
+              to="/lessons"
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              Lessons
+            </Link>
+            <Link
+              to="/chat"
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              Chat
+            </Link>
+
+            <NotificationBell />
+
+            {/* Auth Buttons */}
+            {loading ? (
+              <span className="text-muted-foreground">Checking...</span>
+            ) : user ? (
+              <button
+                onClick={logout}
+                className="px-3 py-1 rounded bg-destructive text-destructive-foreground hover:bg-destructive/90 transition"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="px-3 py-1 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition"
+              >
+                Login
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </nav>
   );

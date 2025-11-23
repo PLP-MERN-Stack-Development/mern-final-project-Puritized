@@ -1,9 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path'; // added for alias
 
 export default defineConfig({
   plugins: [react()],
-  base: '/', // ✅ important: ensures assets are loaded from root
+  base: '/', // important: ensures assets are loaded from root
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'), // added alias for ShadCN
+    },
+  },
   server: {
     port: 5173,
     // Proxy API requests to backend in development

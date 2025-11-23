@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Fetch lessons by course
 export const fetchLessons = async (courseId) => {
-  const { data } = await axiosClient.get(`/api/lessons/${courseId}`);
+  const { data } = await axiosClient.get(`/routes/lessons/${courseId}`);
   return data;
 };
 
