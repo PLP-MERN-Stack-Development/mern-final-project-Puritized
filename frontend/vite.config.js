@@ -1,15 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import tailwindcss from '@tailwindcss/vite'; // ✅ REQUIRED for Tailwind v4
+import tailwindcss from '@tailwindcss/vite'; // Tailwind v4 Vite plugin
 
 export default defineConfig({
   plugins: [
-    tailwindcss(), // ✅ Enables Tailwind CSS processing
+    tailwindcss(),
     react()
   ],
 
-  base: '/', // ensures assets load from root
+  base: '/',
 
   resolve: {
     alias: {
