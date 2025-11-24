@@ -52,6 +52,9 @@ jobs:
 
       - name: Build frontend
         working-directory: ./frontend
+        #  Set environment variable to skip Rollup native binary check
+        env:
+          ROLLUP_SKIP_PLATFORM_CHECK: true
         run: npx vite build
 
       # Optional: keep for debugging
