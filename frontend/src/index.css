@@ -2,25 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =========================================
-   GLOBAL BASE STYLES
-========================================= */
-
-:root {
-  --background: 255 255 255;
-  --foreground: 17 17 17;
-}
-
-.dark {
-  --background: 17 17 17;
-  --foreground: 255 255 255;
-}
-
 body {
-  @apply bg-gray-100 text-gray-900;
+  background-color: #f3f4f6; /* gray-100 */
+  color: #111827; /* gray-900 */
+}
+/* Global reusable styles (SAFE – no @apply)  */
+
+.page-container {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* OPTIONAL: global utility classes */
 .card {
-  @apply bg-white rounded-lg shadow p-4;
+  background: white;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  box-shadow: rgba(0,0,0,0.03) 0px 1px 2px;
+}
+
+.card-dark {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f3f4f6;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background: white;
+}
+
+.input:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 1px #2563eb;
 }
