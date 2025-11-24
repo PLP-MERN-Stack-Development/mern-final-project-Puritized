@@ -78,5 +78,6 @@
    GLOBAL BASE STYLES
 ========================================= */
 body {
-  @apply bg-background text-foreground;
+  background-color: hsl(var(--background) / 1);
+  color: hsl(var(--foreground) / 1);
 }
