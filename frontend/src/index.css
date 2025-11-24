@@ -1,13 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4 core import (must be first) */
+@import "tailwindcss";
 
-body {
-  background-color: #f3f4f6; /* gray-100 */
-  color: #111827; /* gray-900 */
+/* Optional v4 theme tokens — you can add more here as you migrate */
+@theme {
+  /* example tokens (useable by custom v4 utilities later) */
+  --background: 255 255 255;
+  --foreground: 17 17 17;
+  --brand: 59 130 246; /* used as hsl(var(--brand)) if you create utilities later */
 }
-/* Global reusable styles (SAFE – no @apply)  */
 
+/* Simple safe global styles (do NOT use @apply here to avoid v3/v4 mixing issues) */
+body {
+  background-color: #f3f4f6; /* gray-100 equivalent */
+  color: #111827; /* gray-900 equivalent */
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+}
+
+/* Global reusable styles (pure CSS, safe for build) */
 .page-container {
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -37,6 +48,7 @@ body {
   color: white;
   font-weight: 600;
   text-align: center;
+  text-decoration: none;
 }
 
 .btn:hover {
