@@ -13,13 +13,11 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
 
-      // ✅ MERGED COLORS (NO DUPLICATES)
+      // ✅ FIXED: Correct color tokens for Tailwind + shadcn
       colors: {
-        // Your custom background color (for bg-background)
-        background: "#f9fafb",
-
-        // shadcn-style tokens
+        background: "hsl(var(--background) / <alpha-value>)",
         foreground: "hsl(var(--foreground) / <alpha-value>)",
+
         card: {
           DEFAULT: "hsl(var(--card) / <alpha-value>)",
           foreground: "hsl(var(--card-foreground) / <alpha-value>)",
@@ -48,9 +46,11 @@ module.exports = {
           DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
           foreground: "hsl(var(--destructive-foreground) / <alpha-value>)",
         },
+
         border: "hsl(var(--border) / <alpha-value>)",
         input: "hsl(var(--input) / <alpha-value>)",
         ring: "hsl(var(--ring) / <alpha-value>)",
+
         chart: {
           1: "hsl(var(--chart-1) / <alpha-value>)",
           2: "hsl(var(--chart-2) / <alpha-value>)",
@@ -60,7 +60,7 @@ module.exports = {
         },
       },
 
-      // These remain unchanged
+      // unchanged
       borderColor: () => ({
         border: "hsl(var(--border) / <alpha-value>)",
       }),
