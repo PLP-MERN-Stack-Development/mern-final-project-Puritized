@@ -13,13 +13,13 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="flex">
-      {/* Sidebar (fixed) */}
+    <div className="flex min-h-screen bg-background">
+      {/* Sidebar */}
       <Sidebar />
 
       {/* Main content */}
-      <main className="flex-1 ml-64 pt-28 px-8 md:px-12 bg-background min-h-screen">
-        <h1 className="text-3xl font-semibold text-foreground mb-6">
+      <main className="flex-1 ml-64 pt-28 px-8 md:px-12">
+        <h1 className="text-3xl font-bold text-foreground mb-6">
           Admin Dashboard
         </h1>
 
@@ -31,12 +31,12 @@ export default function AdminDashboard() {
           {items.map((item) => (
             <Card
               key={item.title}
-              className="p-4 rounded-md hover:shadow-xl transition-shadow cursor-pointer group"
+              className="p-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow cursor-pointer group"
             >
               <CardHeader>
-                <CardTitle className="flex items-center justify-between mb-2">
+                <CardTitle className="flex items-center justify-between mb-2 text-lg font-semibold">
                   {item.title}
-                  <ArrowRight className="w-4 h-4 opacity-60 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-5 h-5 opacity-60 group-hover:translate-x-1 transition-transform" />
                 </CardTitle>
               </CardHeader>
 
