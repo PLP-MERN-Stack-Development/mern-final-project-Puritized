@@ -29,9 +29,12 @@ jobs:
         run: npm cache clean --force
 
       - name: Remove previous build
-        run: rm -rf frontend/node_modules frontend/dist frontend/package-lock.json
+        run: rm -rf frontend/node_modules frontend/dist frontend/package-lock.json || true
 
-      - name: Install dependencies & regenerate lock file
+      # ----------------------------
+      # Install dependencies & regenerate lock file if missing
+      # ----------------------------
+      - name: Install dependencies
         working-directory: ./frontend
         run: npm install
 
