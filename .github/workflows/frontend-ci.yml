@@ -22,13 +22,27 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
+      # ----------------------------
+      # Clear npm cache and remove old build
+      # ----------------------------
+      - name: Clean npm cache
+        run: npm cache clean --force
+
+      - name: Remove previous build
+        run: rm -rf frontend/node_modules frontend/dist
+
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm ci
 
       - name: Fix permissions for node binaries
         working-directory: ./frontend
         run: chmod -R +x ./node_modules/.bin
+
+      - name: Validate Tailwind classes
+        working-directory: ./frontend
+        # --jit is default in Tailwind v3, --minify ensures output is processed
+        run: npx tailwindcss -c tailwind.config.js --content "./src/**/*.{js,jsx,ts,tsx}" --minify || exit 1
 
       - name: Run tests
         working-directory: ./frontend
