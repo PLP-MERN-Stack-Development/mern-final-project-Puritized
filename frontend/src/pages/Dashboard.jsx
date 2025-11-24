@@ -10,7 +10,7 @@ export default function Dashboard() {
   const { data: lessons, isLoading: lessonsLoading, isError: lessonsError } = useLessons();
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* Sidebar */}
       <Sidebar />
 
@@ -42,11 +42,11 @@ function Section({ title, loading, error, children }) {
       {loading ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, idx) => (
-            <Skeleton key={idx} className="h-32 w-full rounded-md" />
+            <Skeleton key={idx} className="h-32 w-full rounded-lg" />
           ))}
         </div>
       ) : error ? (
-        <p className="text-destructive">Failed to load {title.toLowerCase()}.</p>
+        <p className="text-destructive-foreground">Failed to load {title.toLowerCase()}.</p>
       ) : (
         children
       )}
@@ -66,19 +66,24 @@ function ItemGrid({ data, loading }) {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {loading
         ? Array.from({ length: 6 }).map((_, idx) => (
-            <Card key={idx} className="p-4 rounded-md animate-pulse">
+            <Card key={idx} className="p-4 rounded-lg animate-pulse">
               <Skeleton className="h-6 w-3/4 mb-2 rounded" />
               <Skeleton className="h-4 w-full rounded" />
             </Card>
           ))
         : data.map((item) => (
-            <Card key={item._id} className="transition-shadow hover:shadow-xl p-4 rounded-md">
+            <Card
+              key={item._id}
+              className="transition-shadow hover:shadow-xl p-4 rounded-lg bg-card text-card-foreground"
+            >
               <CardHeader>
                 <CardTitle className="mb-2">{item.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 {item.description && (
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {item.description}
+                  </p>
                 )}
               </CardContent>
             </Card>
