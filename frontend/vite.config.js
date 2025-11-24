@@ -1,18 +1,24 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path'; // added for alias
+import path from 'path';
+import tailwindcss from '@tailwindcss/vite'; // ✅ REQUIRED for Tailwind v4
 
 export default defineConfig({
-  plugins: [react()],
-  base: '/', // important: ensures assets are loaded from root
+  plugins: [
+    tailwindcss(), // ✅ Enables Tailwind CSS processing
+    react()
+  ],
+
+  base: '/', // ensures assets load from root
+
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'), // added alias for ShadCN
+      '@': path.resolve(__dirname, 'src'),
     },
   },
+
   server: {
     port: 5173,
-    // Proxy API requests to backend in development
     proxy: {
       '/api': {
         target: process.env.VITE_BACKEND_URL || 'http://localhost:5000',
@@ -25,11 +31,13 @@ export default defineConfig({
       }
     }
   },
+
   define: {
     'process.env': {
       VITE_BACKEND_URL: process.env.VITE_BACKEND_URL || 'http://localhost:5000'
     }
   },
+
   build: {
     outDir: 'dist',
     sourcemap: true,
