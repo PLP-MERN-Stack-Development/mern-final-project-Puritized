@@ -1,11 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 @import "tailwindcss";
 @import "tailwindcss/theme";
 @import "tailwindcss/utilities";
 
-@layer base {
+@layer theme {
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -60,54 +57,9 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+}
 
-  /* Apply colors safely using Tailwind syntax */
-  * {
-    border-color: hsl(var(--border) / <alpha-value>);
-  }
-
-  input, textarea, select, button {
-    border-color: hsl(var(--input) / <alpha-value>);
-    ring-color: hsl(var(--ring) / <alpha-value>);
-  }
-
-  body {
-    @apply bg-[#f9fafb] text-[#333333];
-  }
-
-  .card {
-    background-color: hsl(var(--card) / <alpha-value>);
-    color: hsl(var(--card-foreground) / <alpha-value>);
-    border-radius: var(--radius);
-  }
-
-  .popover {
-    background-color: hsl(var(--popover) / <alpha-value>);
-    color: hsl(var(--popover-foreground) / <alpha-value>);
-  }
-
-  .primary {
-    background-color: hsl(var(--primary) / <alpha-value>);
-    color: hsl(var(--primary-foreground) / <alpha-value>);
-  }
-
-  .secondary {
-    background-color: hsl(var(--secondary) / <alpha-value>);
-    color: hsl(var(--secondary-foreground) / <alpha-value>);
-  }
-
-  .muted {
-    background-color: hsl(var(--muted) / <alpha-value>);
-    color: hsl(var(--muted-foreground) / <alpha-value>);
-  }
-
-  .accent {
-    background-color: hsl(var(--accent) / <alpha-value>);
-    color: hsl(var(--accent-foreground) / <alpha-value>);
-  }
-
-  .destructive {
-    background-color: hsl(var(--destructive) / <alpha-value>);
-    color: hsl(var(--destructive-foreground) / <alpha-value>);
-  }
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
