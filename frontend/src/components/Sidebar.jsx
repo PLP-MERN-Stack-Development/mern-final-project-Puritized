@@ -19,8 +19,8 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 fixed top-0 left-0 h-screen bg-card border-r border-border p-6 shadow-sm">
-      <h2 className="text-xl font-semibold mb-8 text-foreground">Admin Panel</h2>
+    <aside className="w-64 fixed top-0 left-0 h-screen bg-card text-card-foreground border-r border-border p-6 shadow-sm">
+      <h2 className="text-xl font-semibold mb-8">Admin Panel</h2>
 
       <nav className="flex flex-col space-y-2">
         {links.map((item) => (
@@ -48,7 +48,7 @@ function NavItem({ name, path }) {
       to={path}
       className={({ isActive }) =>
         cn(
-          "block px-4 py-2 rounded-md text-sm font-medium transition-colors",
+          "block px-4 py-2 rounded-lg text-sm font-medium transition-colors",
           "hover:bg-accent hover:text-accent-foreground",
           isActive
             ? "bg-primary text-primary-foreground shadow-sm"
