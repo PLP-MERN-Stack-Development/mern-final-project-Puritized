@@ -33,7 +33,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm install
 
       - name: Fix permissions for node binaries
         working-directory: ./frontend
@@ -41,7 +41,6 @@ jobs:
 
       - name: Validate Tailwind classes
         working-directory: ./frontend
-        # --jit is default in Tailwind v3, --minify ensures output is processed
         run: npx tailwindcss -c tailwind.config.js --content "./src/**/*.{js,jsx,ts,tsx}" --minify || exit 1
 
       - name: Run tests
