@@ -11,16 +11,31 @@ dotenv.config();
 
 const app = express();
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(cors({ origin: process.env.FRONTEND_BASE || "http://localhost:5173", credentials: true }));
+// Allowed origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://mern-final-project-puritized-1.onrender.com", // your deployed frontend
+  process.env.FRONTEND_BASE, // optional: from env
+];
 
-// mount routes (prefix with /routes to match frontend axios paths)
+app.use(cors({
+  origin: function(origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("CORS not allowed: " + origin));
+    }
+  },
+  credentials: true
+}));
+
+// mount routes
 app.use("/routes/auth", authRoutes);
 app.use("/routes/payments", paymentsRoutes);
 app.use("/routes/admin", adminRoutes);
 
-// other routes...
 app.get("/", (req, res) => res.json({ ok: true }));
 
 const httpServer = http.createServer(app);
