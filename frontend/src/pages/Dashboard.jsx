@@ -11,12 +11,14 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar (slides left on mobile) */}
+      <div className="hidden md:block">
+        <Sidebar />
+      </div>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 pt-28 px-8 md:px-12">
-        <h1 className="text-3xl font-bold mb-12">Dashboard</h1>
+      <main className="flex-1 md:ml-64 pt-24 px-4 sm:px-6 md:px-12">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-10">Dashboard</h1>
 
         {/* Courses Section */}
         <Section title="Courses" loading={coursesLoading} error={coursesError}>
@@ -32,21 +34,22 @@ export default function Dashboard() {
   );
 }
 
-/* ----------------------------------------- */
-/* Section Component                          */
-/* ----------------------------------------- */
+/* ------------------------------------------------------------ */
+/* Section Component                                             */
+/* ------------------------------------------------------------ */
 function Section({ title, loading, error, children }) {
   return (
-    <section className="mb-12">
-      <h2 className="text-2xl font-semibold mb-6">{title}</h2>
+    <section className="mb-10">
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4">{title}</h2>
+
       {loading ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, idx) => (
             <Skeleton key={idx} className="h-32 w-full rounded-lg" />
           ))}
         </div>
       ) : error ? (
-        <p className="text-destructive-foreground">Failed to load {title.toLowerCase()}.</p>
+        <p className="text-destructive">Failed to load {title.toLowerCase()}.</p>
       ) : (
         children
       )}
@@ -54,31 +57,34 @@ function Section({ title, loading, error, children }) {
   );
 }
 
-/* ----------------------------------------- */
-/* Grid Component                             */
-/* ----------------------------------------- */
+/* ------------------------------------------------------------ */
+/* Grid Component                                                */
+/* ------------------------------------------------------------ */
 function ItemGrid({ data, loading }) {
   if (!data?.length && !loading) {
     return <p className="text-muted-foreground">No items found.</p>;
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {loading
         ? Array.from({ length: 6 }).map((_, idx) => (
-            <Card key={idx} className="p-4 rounded-lg animate-pulse">
-              <Skeleton className="h-6 w-3/4 mb-2 rounded" />
+            <Card key={idx} className="p-4 rounded-lg animate-pulse bg-card">
+              <Skeleton className="h-6 w-3/4 mb-3 rounded" />
               <Skeleton className="h-4 w-full rounded" />
             </Card>
           ))
         : data.map((item) => (
             <Card
               key={item._id}
-              className="transition-shadow hover:shadow-xl p-4 rounded-lg bg-card text-card-foreground"
+              className="transition-all hover:shadow-lg p-4 rounded-lg bg-card text-card-foreground border border-border"
             >
               <CardHeader>
-                <CardTitle className="mb-2">{item.title}</CardTitle>
+                <CardTitle className="text-lg font-semibold mb-2">
+                  {item.title}
+                </CardTitle>
               </CardHeader>
+
               <CardContent>
                 {item.description && (
                   <p className="text-sm text-muted-foreground leading-relaxed">

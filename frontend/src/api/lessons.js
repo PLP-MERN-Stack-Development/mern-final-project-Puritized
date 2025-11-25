@@ -1,4 +1,4 @@
-import axiosClient from './axiosClient';
+import axiosClient from './apiClient';
 import { useQuery } from '@tanstack/react-query';
 
 // Fetch lessons by course

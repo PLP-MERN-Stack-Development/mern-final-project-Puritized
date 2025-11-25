@@ -8,7 +8,7 @@ import {
   deleteBooking
 } from "../controllers/bookingController.js";
 
-import { protect, isAdmin, isTutor } from "../middleware/auth.js";
+import { protect, isAdmin, isTutor } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 

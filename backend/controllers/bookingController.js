@@ -1,4 +1,4 @@
-import Booking from '../models/Booking.js';
+import Booking from '../models/bookingModel.js';
 import AdminAnalytics from '../models/AdminAnalytics.js';
 import eventBus from '../utils/events.js';
 

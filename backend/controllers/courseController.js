@@ -1,5 +1,5 @@
-import Course from "../models/Course.js";
-import Lesson from "../models/Lesson.js";
+import Course from "../models/courseModel.js";
+import Lesson from "../models/lessonModel.js";
 import mongoose from "mongoose";
 
 // @desc Create a course

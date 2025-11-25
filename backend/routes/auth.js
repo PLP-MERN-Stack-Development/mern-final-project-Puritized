@@ -1,178 +1,22 @@
-import express from 'express';
-import jwt from 'jsonwebtoken';
-import Joi from 'joi';
-import User from '../models/User.js';
+import express from "express";
+import { register, login, refresh, me, logout } from "../controllers/authController.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// -----------------------
-// Schemas
-// -----------------------
-const registerSchema = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
-  role: Joi.string().valid('student', 'tutor', 'admin').default('student'),
-});
+/**
+ * Routes:
+ * POST   /routes/auth/register
+ * POST   /routes/auth/login
+ * GET    /routes/auth/refresh
+ * GET    /routes/auth/me
+ * POST   /routes/auth/logout
+ */
 
-const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
-});
-
-// -----------------------
-// JWT Helpers
-// -----------------------
-const generateAccessToken = (user) => {
-  return jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "15m" }
-  );
-};
-
-const generateRefreshToken = (user) => {
-  return jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: "7d" }
-  );
-};
-
-// -----------------------
-// Middleware using refreshToken cookie
-// -----------------------
-const requireAuth = async (req, res, next) => {
-  try {
-    const refreshToken = req.cookies.refreshToken;
-
-    if (!refreshToken)
-      return res.status(401).json({ message: "No token provided" });
-
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-
-    const user = await User.findById(decoded.id);
-    if (!user)
-      return res.status(401).json({ message: "Unauthorized" });
-
-    req.user = user;
-    next();
-
-  } catch (err) {
-    console.error(err);
-    return res.status(401).json({ message: "Invalid or expired token" });
-  }
-};
-
-// -----------------------
-// REGISTER
-// -----------------------
-router.post('/register', async (req, res, next) => {
-  try {
-    const { error, value } = registerSchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.message });
-
-    const exists = await User.findOne({ email: value.email });
-    if (exists) return res.status(409).json({ message: "Email in use" });
-
-    const user = new User({
-      ...value,
-      passwordHash: value.password,
-    });
-    await user.save();
-
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-
-    user.refreshToken = refreshToken;
-    await user.save();
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    return res.status(201).json({
-      user: user.toJSON(),
-      accessToken,
-    });
-
-  } catch (err) {
-    next(err);
-  }
-});
-
-// -----------------------
-// LOGIN
-// -----------------------
-router.post('/login', async (req, res, next) => {
-  try {
-    const { error, value } = loginSchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.message });
-
-    const user = await User.findOne({ email: value.email });
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
-
-    const isMatch = await user.comparePassword(value.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
-
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-
-    user.refreshToken = refreshToken;
-    await user.save();
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    return res.json({
-      accessToken,
-      user: user.toJSON()
-    });
-
-  } catch (err) {
-    next(err);
-  }
-});
-
-// -----------------------
-// GET CURRENT USER (/me)
-// -----------------------
-router.get('/me', requireAuth, async (req, res) => {
-  try {
-    return res.json({ user: req.user.toJSON() });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error" });
-  }
-});
-
-// -----------------------
-// LOGOUT
-// -----------------------
-router.post('/logout', requireAuth, async (req, res) => {
-  try {
-    req.user.refreshToken = null;
-    await req.user.save();
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-    });
-
-    return res.json({ message: "Logged out successfully" });
-
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error" });
-  }
-});
+router.post("/register", register);
+router.post("/login", login);
+router.get("/refresh", refresh);
+router.get("/me", requireAuth, me);
+router.post("/logout", requireAuth, logout);
 
 export default router;

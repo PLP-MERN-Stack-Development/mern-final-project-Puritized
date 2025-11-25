@@ -1,8 +1,8 @@
 import AdminAnalytics from '../models/AdminAnalytics.js';
-import Payment from '../models/Payment.js';
-import Booking from '../models/Booking.js';
-import Course from '../models/Course.js';
-import User from '../models/User.js';
+import Payment from '../models/paymentModel.js';
+import Booking from '../models/bookingModel.js';
+import Course from '../models/courseModel.js';
+import User from '../models/userModel.js';
 import mongoose from 'mongoose';
 
 // DAU (Daily Active Users)

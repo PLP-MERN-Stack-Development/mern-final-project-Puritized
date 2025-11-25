@@ -1,247 +1,129 @@
-import crypto from 'crypto';
-import axios from 'axios';
-import Stripe from 'stripe';
-import Payment from '../models/Payment.js';
-import Booking from '../models/Booking.js';
-import eventBus from '../utils/events.js';
+import Payment from "../models/paymentModel.js";
+import Enrollment from "../models/enrollmentModel.js";
+import Course from "../models/courseModel.js";
+import Transaction from "../models/transactionModel.js";
+import { initializePayment, verifyPayment } from "../services/paystack.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-// --------------------------------------------
-// Ensure STRIPE_SECRET exists
-// --------------------------------------------
+const FRONTEND_BASE = process.env.FRONTEND_BASE || "http://localhost:5173";
 
-if (!process.env.STRIPE_SECRET) {
-  throw new Error('STRIPE_SECRET is missing in environment variables');
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET);
-
-// --------------------------------------------------------
-// PAYSTACK: Initialize Transaction
-// --------------------------------------------------------
-export const initPaystackPayment = async ({ amountKobo, email, metadata = {} }) => {
-  const url = 'https://api.paystack.co/transaction/initialize';
-  const payload = { email, amount: amountKobo, metadata };
-
-  const resp = await axios.post(url, payload, {
-    headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET}` }
-  });
-
-  return resp.data;
-};
-
-// --------------------------------------------------------
-// POST /api/payments/init
-// User initiates payment (Paystack or Stripe)
-// --------------------------------------------------------
-export const initPayment = async (req, res) => {
+/**
+ * Initiate payment for a course
+ * POST /routes/payments/initiate
+ * body: { courseId }
+ */
+export const initiatePayment = async (req, res, next) => {
   try {
-    const { provider = 'paystack', amount, bookingId, currency = 'NGN', returnUrl } = req.body;
+    const { courseId } = req.body;
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: "Course not found" });
 
-    const amountCents = Math.round(Number(amount) * 100);
+    const amountInKobo = Math.round(course.price * 100); // assume NGN/kobo or USD/cents accordingly
 
-    const payment = await Payment.create({
-      user: req.user.id,
-      booking: bookingId || null,
-      amount: amountCents,
-      currency,
-      provider,
-      status: 'pending',
-      metadata: req.body.metadata || {}
+    const paymentDoc = await Payment.create({
+      student: req.user._id,
+      course: course._id,
+      amount: course.price,
+      currency: course.currency || "NGN",
+      provider: "paystack",
+      status: "pending",
+      createdBy: req.user._id,
     });
 
-    // PAYSTACK PAYMENT ------------------------------------------------
-    if (provider === 'paystack') {
-      const paystackResp = await initPaystackPayment({
-        amountKobo: amountCents,
-        email: req.user.email || req.body.email,
-        metadata: {
-          paymentId: payment._id.toString(),
-          bookingId
-        }
-      });
+    const metadata = { paymentId: paymentDoc._id.toString(), courseId: course._id.toString() };
+    const callback = `${process.env.BACKEND_BASE || ""}/routes/payments/webhook`; // paystack webhook or callback
 
-      return res.status(201).json({
-        payment,
-        paystack: paystackResp.data
-      });
+    const init = await initializePayment({
+      email: req.user.email,
+      amount: amountInKobo,
+      metadata,
+      callback_url: `${FRONTEND_BASE}/payments/complete?reference={reference}`, // user-facing callback
+    });
+
+    if (!init.status) {
+      return res.status(500).json({ message: "Failed to initialize payment", error: init });
     }
 
-    // STRIPE PAYMENT --------------------------------------------------
-    if (provider === 'stripe') {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [{
-          price_data: {
-            currency,
-            product_data: { name: req.body.description || 'Course purchase' },
-            unit_amount: amountCents
-          },
-          quantity: 1
-        }],
-        mode: 'payment',
-        success_url: returnUrl || `${process.env.CLIENT_URL}/payments/success`,
-        cancel_url: returnUrl || `${process.env.CLIENT_URL}/payments/cancel`,
-        metadata: {
-          paymentId: payment._id.toString(),
-          bookingId
-        }
-      });
+    paymentDoc.providerReference = init.data.reference;
+    await paymentDoc.save();
 
-      return res.status(201).json({
-        payment,
-        stripeSession: session
-      });
-    }
-
-    // DEFAULT RETURN ---------------------------------------------------
-    return res.status(201).json({ payment });
-
+    return res.json({ authorization_url: init.data.authorization_url, payment: paymentDoc });
   } catch (err) {
-    console.error('initPayment error:', err);
-    res.status(500).json({ message: err.message || 'Payment initiation failed' });
+    next(err);
   }
 };
 
-// --------------------------------------------------------
-// GET /api/payments/verify (Paystack verification)
-// --------------------------------------------------------
-export const verifyPayment = async (req, res) => {
-  try {
-    const { reference } = req.query;
-    if (!reference) return res.status(400).json({ message: "Reference required" });
-
-    const response = await axios.get(
-      `https://api.paystack.co/transaction/verify/${reference}`,
-      { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET}` } }
-    );
-
-    const data = response.data.data;
-    const status = data.status;
-
-    if (status === 'success') {
-      const paymentId = data.metadata?.paymentId;
-      const bookingId = data.metadata?.bookingId;
-
-      const payment = await Payment.findByIdAndUpdate(
-        paymentId,
-        {
-          status: 'success',
-          providerReference: reference,
-          providerPayload: response.data
-        },
-        { new: true }
-      );
-
-      if (bookingId) {
-        await Booking.findByIdAndUpdate(bookingId, { status: 'confirmed' });
-      }
-
-      eventBus.emit('payment:success', { payment, providerPayload: response.data });
-    }
-
-    return res.json({ status });
-
-  } catch (err) {
-    console.error('verifyPayment error:', err);
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// --------------------------------------------------------
-// PAYSTACK WEBHOOK
-// --------------------------------------------------------
+/**
+ * Paystack webhook handler (or verification endpoint)
+ * POST /routes/payments/webhook
+ * Paystack sends an event payload — verify via signature or call verify endpoint
+ */
 export const paystackWebhook = async (req, res) => {
   try {
-    const rawBody = req.body;
-    const signature = req.headers['x-paystack-signature'];
-    const secret = process.env.PAYSTACK_SECRET;
+    // Optionally verify the Paystack signature header (recommended)
+    // const signature = req.headers['x-paystack-signature'];
 
-    // Validate signature
-    const hash = crypto.createHmac('sha512', secret).update(rawBody).digest('hex');
-    if (hash !== signature) {
-      console.warn('Paystack signature mismatch');
-      return res.status(400).send('Invalid signature');
+    const event = req.body;
+    // Example event structure: event.data.status, event.data.reference
+    const reference = event?.data?.reference || event?.reference;
+    if (!reference) {
+      return res.status(400).json({ message: "Missing reference" });
     }
 
-    const payload = JSON.parse(rawBody.toString());
-    const { event, data } = payload;
+    // Verify with Paystack to be safe
+    const verified = await verifyPayment(reference);
+    if (!verified?.status) {
+      console.error("Paystack verification failed", verified);
+      return res.status(400).json({ message: "Verification failed" });
+    }
 
-    if (event === 'charge.success') {
-      const paymentId = data.metadata?.paymentId;
-      const bookingId = data.metadata?.bookingId;
+    const pdata = verified.data;
+    const payment = await Payment.findOne({ providerReference: pdata.reference });
+    if (!payment) {
+      console.warn("Payment not found for reference", pdata.reference);
+      // optionally create a payment record
+      return res.status(200).json({ message: "No local payment record" });
+    }
 
-      const payment = await Payment.findByIdAndUpdate(paymentId, {
-        status: 'success',
-        providerReference: data.reference,
-        providerPayload: payload
-      }, { new: true });
+    if (pdata.status === "success") {
+      payment.status = "completed";
+      payment.paidAt = new Date(pdata.paid_at || Date.now());
+      payment.metadata = pdata;
+      await payment.save();
 
-      if (bookingId) {
-        await Booking.findByIdAndUpdate(bookingId, { status: 'confirmed' });
+      // Create Enrollment if not already
+      const existing = await Enrollment.findOne({ student: payment.student, course: payment.course });
+      if (!existing) {
+        await Enrollment.create({ student: payment.student, course: payment.course, progress: 0, payment: payment._id });
+        // increment course studentsCount
+        await Course.findByIdAndUpdate(payment.course, { $inc: { studentsCount: 1 } });
       }
 
-      eventBus.emit('payment:success', { payment, providerPayload: payload });
+      // Create Transaction record
+      await Transaction.create({
+        reference: pdata.reference,
+        type: "payment",
+        from: { id: payment.student, type: "student" },
+        to: { id: payment.course, type: "course" },
+        amount: payment.amount,
+        currency: payment.currency,
+        status: "success",
+        payment: payment._id,
+        provider: "paystack",
+        providerReference: pdata.reference,
+        metadata: pdata,
+      });
+    } else {
+      payment.status = "failed";
+      payment.metadata = pdata;
+      await payment.save();
     }
 
-    return res.json({ received: true });
-
+    // respond 200 quickly
+    return res.status(200).json({ message: "Processed" });
   } catch (err) {
-    console.error('paystackWebhook error:', err);
-    return res.status(500).send('server error');
-  }
-};
-
-// --------------------------------------------------------
-// STRIPE WEBHOOK
-// --------------------------------------------------------
-export const stripeWebhook = async (req, res) => {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const sig = req.headers['stripe-signature'];
-  const rawBody = req.body;
-
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
-  } catch (err) {
-    console.error('Stripe webhook signature failed:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  // Checkout success event
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const metadata = session.metadata || {};
-
-    const payment = await Payment.findByIdAndUpdate(metadata.paymentId, {
-      status: 'success',
-      providerReference: session.payment_intent,
-      providerPayload: event
-    }, { new: true });
-
-    if (metadata.bookingId) {
-      await Booking.findByIdAndUpdate(metadata.bookingId, { status: 'confirmed' });
-    }
-
-    eventBus.emit('payment:success', { payment, providerPayload: event });
-  }
-
-  return res.json({ received: true });
-};
-
-// --------------------------------------------------------
-// GET /api/payments/:id/status
-// --------------------------------------------------------
-export const getPaymentStatus = async (req, res) => {
-  try {
-    const payment = await Payment.findById(req.params.id);
-    if (!payment) return res.status(404).json({ message: 'Not found' });
-
-    return res.json({
-      status: payment.status,
-      payment
-    });
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
+    console.error("webhook error", err);
+    return res.status(500).json({ message: "Server error" });
   }
 };

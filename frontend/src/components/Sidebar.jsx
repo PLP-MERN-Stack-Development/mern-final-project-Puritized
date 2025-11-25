@@ -1,62 +1,55 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { cn } from "@/lib/utils"; // ShadCN utility
+import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Menu, X } from 'lucide-react';
 
 export default function Sidebar() {
   const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onEsc = (e) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, []);
 
   const links = [
-    { name: "Dashboard", path: "/" },
-    { name: "Courses", path: "/courses" },
-    { name: "Lessons", path: "/lessons" },
+    { name: 'Dashboard', to: '/' },
+    { name: 'Courses', to: '/courses' },
+    { name: 'Lessons', to: '/lessons' }
   ];
 
   const authLinks = [
-    { name: "Bookings", path: "/bookings" },
-    { name: "Payments", path: "/payments" },
-    { name: "Chat", path: "/chat" },
+    { name: 'Bookings', to: '/bookings' },
+    { name: 'Payments', to: '/payments' },
+    { name: 'Chat', to: '/chat' }
   ];
 
   return (
-    <aside className="w-64 fixed top-0 left-0 h-screen bg-card text-card-foreground border-r border-border p-6 shadow-sm">
-      <h2 className="text-xl font-semibold mb-8">Admin Panel</h2>
+    <>
+      <button className="md:hidden fixed top-4 left-4 z-40 bg-blue-600 text-white p-2 rounded-md" onClick={() => setOpen(true)}>
+        <Menu className="w-5 h-5" />
+      </button>
 
-      <nav className="flex flex-col space-y-2">
-        {links.map((item) => (
-          <NavItem key={item.path} name={item.name} path={item.path} />
-        ))}
+      {open && <div className="fixed inset-0 bg-black/40 z-30 md:hidden" onClick={() => setOpen(false)} />}
 
-        {user && (
-          <>
-            <div className="mt-6 mb-2 border-t border-border/50"></div>
+      <aside className={`fixed top-0 left-0 h-full w-64 p-6 bg-white border-r border-gray-200 z-40 transform transition-transform md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
+        <button className="md:hidden absolute right-4 top-4 p-2" onClick={() => setOpen(false)}><X /></button>
+        <h3 className="text-lg font-semibold mb-6">Admin Panel</h3>
 
-            {authLinks.map((item) => (
-              <NavItem key={item.path} name={item.name} path={item.path} />
+        <nav className="flex flex-col gap-2">
+          {links.map(l => (
+            <NavLink key={l.to} to={l.to} className={({isActive}) => `px-3 py-2 rounded-md ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700'}`}>{l.name}</NavLink>
+          ))}
+
+          {user && <>
+            <div className="mt-4 border-t border-gray-100" />
+            {authLinks.map(l => (
+              <NavLink key={l.to} to={l.to} className={({isActive}) => `px-3 py-2 rounded-md ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700'}`}>{l.name}</NavLink>
             ))}
-          </>
-        )}
-      </nav>
-    </aside>
-  );
-}
-
-/** ShadCN-style nav item */
-function NavItem({ name, path }) {
-  return (
-    <NavLink
-      to={path}
-      className={({ isActive }) =>
-        cn(
-          "block px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-          "hover:bg-accent hover:text-accent-foreground",
-          isActive
-            ? "bg-primary text-primary-foreground shadow-sm"
-            : "text-muted-foreground"
-        )
-      }
-    >
-      {name}
-    </NavLink>
+          </>}
+        </nav>
+      </aside>
+    </>
   );
 }

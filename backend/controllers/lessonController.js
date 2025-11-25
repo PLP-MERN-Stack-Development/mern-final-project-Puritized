@@ -1,4 +1,4 @@
-import Lesson from "../models/Lesson.js";
+import Lesson from "../models/lessonModel.js";
 
 // Create lesson
 export const createLesson = async (req, res) => {

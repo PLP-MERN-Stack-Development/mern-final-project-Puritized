@@ -1,20 +1,14 @@
 import express from "express";
-import {
-  initPayment,
-  paystackWebhook,
-  stripeWebhook
-} from "../controllers/paymentController.js";
-import { protect } from "../middleware/auth.js";
+import { initiatePayment, paystackWebhook } from "../controllers/paymentController.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
+import bodyParser from "body-parser";
 
 const router = express.Router();
 
-// User initiates payment
-router.post("/init", protect, initPayment);
+// Init payment (student must be authenticated)
+router.post("/initiate", requireAuth, initiatePayment);
 
-// PAYSTACK WEBHOOK
-router.post("/paystack/webhook", express.raw({ type: "*/*" }), paystackWebhook);
-
-// STRIPE WEBHOOK
-router.post("/stripe/webhook", express.raw({ type: "*/*" }), stripeWebhook);
+// Webhook - Paystack calls this. Use raw body, so mount using bodyParser.json in server with same route or use raw middleware here.
+router.post("/webhook", express.json({ type: "*/*" }), paystackWebhook);
 
 export default router;

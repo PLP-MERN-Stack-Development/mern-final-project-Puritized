@@ -1,11 +1,6 @@
-import axiosClient from './axiosClient';
-import { useQuery } from '@tanstack/react-query';
+import api from "./apiClient";
 
-export const fetchPayments = async () => {
-  const { data } = await axiosClient.get('/routes/payments');
-  return data;
-};
-
-export const usePayments = () => {
-  return useQuery(['payments'], fetchPayments);
+export const startCoursePayment = async (courseId) => {
+  const res = await api.post("/payments/checkout", { courseId });
+  return res.data.url; // redirect URL
 };

@@ -5,7 +5,7 @@ import {
   updateLesson,
   deleteLesson
 } from "../controllers/lessonController.js";
-import { isTutor, protect } from "../middleware/auth.js";
+import { isTutor, protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 

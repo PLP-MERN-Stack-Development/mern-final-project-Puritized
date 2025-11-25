@@ -4,7 +4,7 @@ import {
   monthlyRevenue,
   topCourses
 } from "../controllers/analyticsController.js";
-import { protect, isAdmin } from "../middleware/auth.js";
+import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
