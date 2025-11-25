@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -6,7 +5,6 @@ const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET;
 const PAYSTACK_BASE = process.env.PAYSTACK_BASE || "https://api.paystack.co";
 
 export async function initializePayment({ email, amount, metadata, callback_url }) {
-  // amount in kobo (NGN) or cents depending on currency — ensure conversion on frontend/backend
   const body = {
     email,
     amount,
