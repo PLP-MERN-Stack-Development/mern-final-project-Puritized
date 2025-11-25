@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import paymentsRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/admin.js";
-import coursesRoutes from "./routes/courses.js"; // add if you have a courses route
+import coursesRoutes from "./routes/courseRoutes.js"; // add if you have a courses route
 import { createSocketServer } from "./sockets/index.js";
 
 dotenv.config();
