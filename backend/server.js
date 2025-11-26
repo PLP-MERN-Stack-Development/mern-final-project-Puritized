@@ -3,10 +3,11 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 import authRoutes from "./routes/auth.js";
 import paymentsRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/admin.js";
-import coursesRoutes from "./routes/courseRoutes.js"; // add if you have a courses route
+import coursesRoutes from "./routes/courseRoutes.js";
 import { createSocketServer } from "./sockets/index.js";
 
 dotenv.config();
@@ -23,9 +24,7 @@ const allowedOrigins = [
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true); // allow server-to-server or Postman requests
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error("CORS not allowed: " + origin));
   },
   credentials: true
@@ -35,14 +34,26 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Mount routes with correct paths
+// Mount API routes
 app.use("/auth", authRoutes);
 app.use("/payments", paymentsRoutes);
 app.use("/admin", adminRoutes);
-app.use("/api/courses", coursesRoutes); // frontend calls /api/courses
+app.use("/api/courses", coursesRoutes);
 
 // Test route
-app.get("/", (req, res) => res.json({ ok: true }));
+app.get("/api/health", (req, res) => res.json({ ok: true }));
+
+// Serve React SPA (production build)
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+// SPA fallback: serve index.html for any non-API route
+app.get("*", (req, res) => {
+  if (req.path.startsWith("/api") || req.path.startsWith("/auth") || req.path.startsWith("/payments") || req.path.startsWith("/admin")) {
+    return res.status(404).json({ message: "API route not found" });
+  }
+  res.sendFile(path.resolve(__dirname, "../frontend/build", "index.html"));
+});
 
 // HTTP server
 const httpServer = http.createServer(app);
