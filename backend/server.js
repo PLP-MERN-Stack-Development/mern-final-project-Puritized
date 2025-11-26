@@ -3,6 +3,7 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import connectDB from "./config/db.js";
 
 import coursesRoutes from "./routes/courseRoutes.js";
 import authRoutes from "./routes/authRoutes.js"; // FIXED
@@ -11,6 +12,7 @@ import adminRoutes from "./routes/admin.js";
 import { createSocketServer } from "./sockets/index.js";
 
 dotenv.config();
+connectDB();
 
 const app = express();
 
