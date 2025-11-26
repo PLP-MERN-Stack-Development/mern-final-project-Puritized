@@ -45,7 +45,7 @@ app.get("/api/health", (req, res) => res.json({ ok: true }));
 
 // Serve React SPA (production build)
 const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, "../frontend/build")));
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // SPA fallback: serve index.html for any non-API route
 app.get("*", (req, res) => {
