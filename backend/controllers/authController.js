@@ -35,7 +35,6 @@ export const register = async (req, res, next) => {
     const accessToken = signAccess(user);
     const refreshToken = signRefresh(user);
 
-    // Optionally persist refresh on user document:
     user.refreshToken = refreshToken;
     await user.save();
 
@@ -79,7 +78,6 @@ export const refresh = async (req, res) => {
     const user = await User.findById(payload.id);
     if (!user) return res.status(401).json({ message: "Invalid refresh token" });
 
-    // Optional: verify persisted refresh token matches
     if (user.refreshToken && user.refreshToken !== token) {
       return res.status(401).json({ message: "Refresh token mismatch" });
     }
@@ -93,13 +91,12 @@ export const refresh = async (req, res) => {
 };
 
 export const me = async (req, res) => {
-  // requireAuth middleware populates req.user
-  return res.json({ user: req.user.toJSON() });
+  // Return null user instead of 401 for public access
+  return res.json({ user: req.user ? req.user.toJSON() : null });
 };
 
 export const logout = async (req, res) => {
   try {
-    // clear persisted refresh token if exists
     if (req.user) {
       req.user.refreshToken = null;
       await req.user.save();
