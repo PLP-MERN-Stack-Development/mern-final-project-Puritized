@@ -18,20 +18,37 @@ export default function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
+          {/* Public pages */}
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/courses" element={<CourseList />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
-          <Route path="/login" element={<Login />} />
 
-          <Route path="/admin" element={
-            <ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>
-          } />
-          <Route path="/teacher" element={
-            <ProtectedRoute roles={['teacher']}><TeacherDashboard /></ProtectedRoute>
-          } />
-          <Route path="/student" element={
-            <ProtectedRoute roles={['student']}><StudentDashboard /></ProtectedRoute>
-          } />
+          {/* Protected dashboards */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teacher"
+            element={
+              <ProtectedRoute roles={['teacher']}>
+                <TeacherDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student"
+            element={
+              <ProtectedRoute roles={['student']}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
