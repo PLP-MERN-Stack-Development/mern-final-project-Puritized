@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { fetchMe, loginRequest, logoutRequest } from '../api/authApi';
 import api from '../api/apiClient';
 
+
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
