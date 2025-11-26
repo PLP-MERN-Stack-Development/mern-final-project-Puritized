@@ -4,10 +4,10 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import coursesRoutes from "./routes/courseRoutes.js";
-import authRoutes from "./routes/auth.js";
-import paymentsRoutes from "./routes/paymentRoutes.js";
-import adminRoutes from "./routes/admin.js";
+import coursesRoutes from "./courseRoutes.js";
+import authRoutes from "./auth.js";
+import paymentsRoutes from "./paymentRoutes.js";
+import adminRoutes from "./admin.js";
 import { createSocketServer } from "./sockets/index.js";
 
 dotenv.config();
