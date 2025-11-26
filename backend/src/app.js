@@ -5,10 +5,10 @@ import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
-import courseRoutes from './routes/courses.js';
+import courseRoutes from './routes/courseRoutes.js';
 import userRoutes from './routes/users.js';
-import bookingRoutes from './routes/bookings.js';
-import messagesRoutes from './routes/messages.js';
+import bookingRoutes from './routes/bookingRoutes.js';
+import messagesRoutes from './routes/messageRoutes.js';
 import errorHandler from './middlewares/errorHandler.js';
 
 dotenv.config();

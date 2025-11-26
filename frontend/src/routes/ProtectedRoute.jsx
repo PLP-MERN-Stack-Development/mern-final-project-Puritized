@@ -1,9 +1,21 @@
-import { useContext } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; // updated to match your AuthContext
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function ProtectedRoute({ children }) {
-  const { user } = useAuth(); // use the custom hook
+const ProtectedRoute = ({ roles = [], children }) => {
+  const { user } = useAuth(); // get logged-in user from context
 
-  return user ? children : <Navigate to="/login" replace />;
-}
+  // Not logged in
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Role not authorized
+  if (roles.length && !roles.includes(user.role)) {
+    return <Navigate to="/" replace />; // redirect to home if role mismatch
+  }
+
+  return children; // authorized
+};
+
+export default ProtectedRoute;
