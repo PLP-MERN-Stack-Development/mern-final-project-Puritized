@@ -18,13 +18,13 @@ export default function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          {/* Public pages */}
+          {/* Public routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
           <Route path="/courses" element={<CourseList />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
+          <Route path="/login" element={<Login />} />
 
-          {/* Protected dashboards */}
+          {/* Protected routes */}
           <Route
             path="/admin"
             element={

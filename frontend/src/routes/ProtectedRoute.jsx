@@ -5,14 +5,13 @@ import { useAuth } from '../contexts/AuthContext';
 const ProtectedRoute = ({ roles = [], children }) => {
   const { user, loading } = useAuth();
 
-  // Wait until auth state is resolved
   if (loading) return <div>Loading...</div>;
 
-  // Not logged in → redirect to login
-  if (!user) return <Navigate to="/login" replace />;
+  // Only redirect to login if route requires roles
+  if (roles.length && !user) return <Navigate to="/login" replace />;
 
-  // User role mismatch → redirect to home
-  if (roles.length && !roles.includes(user.role)) {
+  // Redirect to home if user exists but role is not allowed
+  if (user && roles.length && !roles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 

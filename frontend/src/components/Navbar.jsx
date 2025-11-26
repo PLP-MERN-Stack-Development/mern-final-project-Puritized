@@ -1,9 +1,13 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   return (
     <nav className="w-full bg-white border-b border-gray-200 fixed top-0 left-0 z-30">
@@ -17,7 +21,7 @@ export default function Navbar() {
           {user ? (
             <>
               <span className="text-sm text-muted-foreground hidden sm:inline">{user.name}</span>
-              <button onClick={logout} className="btn">Logout</button>
+              <button onClick={handleLogout} className="btn">Logout</button>
             </>
           ) : (
             <Link to="/login" className="btn">Login</Link>

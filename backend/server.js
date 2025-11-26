@@ -6,10 +6,13 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 
 import coursesRoutes from "./routes/courseRoutes.js";
-import authRoutes from "./routes/authRoutes.js"; // FIXED
+import authRoutes from "./routes/authRoutes.js"; 
 import paymentsRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/admin.js";
 import { createSocketServer } from "./sockets/index.js";
+
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 connectDB();
@@ -42,14 +45,14 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// API ROUTES (CORRECT)
+// API ROUTES
 app.use("/api/courses", coursesRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Test route
-app.get("/", (req, res) => res.json({ ok: true }));
+app.get("/api/ping", (req, res) => res.json({ ok: true }));
 
 // HTTP + SOCKET
 const httpServer = http.createServer(app);
@@ -61,16 +64,12 @@ httpServer.listen(PORT, () => {
   console.log(`✅ Server listening on ${PORT}`);
 });
 
-import path from "path";
-import { fileURLToPath } from "url";
-
+// Frontend build serving
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// SERVE FRONTEND BUILD
 app.use(express.static(path.join(__dirname, "frontend/dist")));
 
-// FIX FOR REACT ROUTES LIKE /checkout/:id
+// Fix React routes (catch-all)
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend/dist", "index.html"));
 });
