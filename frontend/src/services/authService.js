@@ -9,7 +9,7 @@ export const getAccessToken = () => accessToken;
    Login
 ---------------------------------*/
 export const login = async (email, password) => {
-  const data = await http.request('/routes/auth/login', {
+  const data = await http.request('/api/auth/login', {
     method: 'POST',
     body: { email, password }
   });
@@ -22,7 +22,7 @@ export const login = async (email, password) => {
    (backend endpoint should return new accessToken)
 ---------------------------------*/
 export const refreshAccessToken = async () => {
-  const data = await http.request('/routes/auth/refresh', {
+  const data = await http.request('/api/auth/refresh', {
     method: 'GET',
     token: null // use cookie for refresh
   });
