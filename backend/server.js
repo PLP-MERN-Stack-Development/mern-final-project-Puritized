@@ -4,10 +4,10 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import coursesRoutes from "./courseRoutes.js";
-import authRoutes from "./auth.js";
-import paymentsRoutes from "./paymentRoutes.js";
-import adminRoutes from "./admin.js";
+import coursesRoutes from "./routes/courseRoutes.js";
+import authRoutes from "./routes/authRoutes.js"; // FIXED
+import paymentsRoutes from "./routes/paymentRoutes.js";
+import adminRoutes from "./routes/admin.js";
 import { createSocketServer } from "./sockets/index.js";
 
 dotenv.config();
@@ -17,15 +17,14 @@ const app = express();
 // Allowed origins
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://mern-final-project-puritized-1.onrender.com", // your deployed frontend
-  process.env.FRONTEND_BASE, // optional: from env
+  "https://mern-final-project-puritized-1.onrender.com",
+  process.env.FRONTEND_BASE,
 ];
 
 // CORS middleware
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like Postman)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
@@ -41,23 +40,21 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// Mount routes
-app.use("/api/courses", coursesRoutes); // frontend calls /api/courses
-app.use("/auth", authRoutes);           // removed /routes prefix to match frontend API calls
-app.use("/payments", paymentsRoutes);
-app.use("/admin", adminRoutes);
+// API ROUTES (CORRECT)
+app.use("/api/courses", coursesRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/payments", paymentsRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Test route
 app.get("/", (req, res) => res.json({ ok: true }));
 
-// Create HTTP server
+// HTTP + SOCKET
 const httpServer = http.createServer(app);
-
-// Create Socket.io server
 const io = createSocketServer(httpServer);
 
 // Start server
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
+  console.log(`✅ Server listening on ${PORT}`);
 });
