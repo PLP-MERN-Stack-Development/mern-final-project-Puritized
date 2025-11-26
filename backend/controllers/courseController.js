@@ -14,7 +14,9 @@ export const createCourse = async (req, res) => {
 // @desc Get all courses
 export const getCourses = async (req, res) => {
   try {
-    const courses = await Course.find(); // ✅ removed unsafe populate
+    const courses = await Course.find()
+      .populate("teacher", "name email"); // ✅ correct field
+
     res.json(courses);
   } catch (err) {
     console.error("getCourses error:", err);
@@ -22,16 +24,23 @@ export const getCourses = async (req, res) => {
   }
 };
 
-// @desc Get single course
+// @desc Get single course WITH lessons
 export const getCourse = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id); // ✅ removed unsafe populate
+    const course = await Course.findById(req.params.id)
+      .populate("teacher", "name email"); // ✅ correct field
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    res.json(course);
+    // ✅ Fetch lessons properly (since Course has no lessons array)
+    const lessons = await Lesson.find({ course: course._id }).sort({ order: 1 });
+
+    res.json({
+      ...course.toObject(),
+      lessons, // ✅ manually attached
+    });
   } catch (err) {
     console.error("getCourse error:", err);
     res.status(400).json({ message: "Invalid course ID" });
@@ -45,7 +54,7 @@ export const updateCourse = async (req, res) => {
       req.params.id,
       req.body,
       { new: true }
-    );
+    ).populate("teacher", "name email");
 
     if (!updated) {
       return res.status(404).json({ message: "Course not found" });
@@ -57,7 +66,7 @@ export const updateCourse = async (req, res) => {
   }
 };
 
-// @desc Delete a course
+// @desc Delete a course + its lessons
 export const deleteCourse = async (req, res) => {
   try {
     const course = await Course.findByIdAndDelete(req.params.id);
@@ -66,7 +75,7 @@ export const deleteCourse = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    await Lesson.deleteMany({ course: req.params.id });
+    await Lesson.deleteMany({ course: course._id });
 
     res.json({ message: "Course deleted" });
   } catch (err) {
