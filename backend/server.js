@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import coursesRoutes from "./routes/courseRoutes.js";
 import authRoutes from "./routes/auth.js";
 import paymentsRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/admin.js";
@@ -41,6 +42,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Mount routes
+app.use("/api/courses", coursesRoutes); // frontend calls /api/courses
 app.use("/routes/auth", authRoutes);
 app.use("/routes/payments", paymentsRoutes);
 app.use("/routes/admin", adminRoutes);
