@@ -60,3 +60,17 @@ const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
   console.log(`✅ Server listening on ${PORT}`);
 });
+
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// SERVE FRONTEND BUILD
+app.use(express.static(path.join(__dirname, "frontend/dist")));
+
+// FIX FOR REACT ROUTES LIKE /checkout/:id
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend/dist", "index.html"));
+});
