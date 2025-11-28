@@ -19,27 +19,19 @@ connectDB();
 
 const app = express();
 
-// Allowed origins
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://mern-final-project-puritized-1.onrender.com",
-  process.env.FRONTEND_BASE,
-];
+/* FIXED CORS — THIS SOLVES YOUR PRODUCTION ERROR */
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://mern-final-project-puritized-1.onrender.com"
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
-// CORS middleware
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("CORS not allowed: " + origin));
-      }
-    },
-    credentials: true,
-  })
-);
+app.options("*", cors()); //  REQUIRED for preflight requests
 
 // Middleware
 app.use(express.json());
