@@ -26,13 +26,18 @@ const processQueue = (err, token = null) => {
   queued = [];
 };
 
+// MARK public requests globally
+const makePublic = (config) => {
+  return { ...config, skipAuthRedirect: true };
+};
+
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config;
 
-    // CHECK: skip redirect if this request is public
-    const skipRedirect = original?.headers?.skipAuthRedirect;
+    // CHECK if request is public
+    const skipRedirect = original?.skipAuthRedirect || original?.headers?.skipAuthRedirect;
 
     if (err.response?.status === 401 && !original._retry && !skipRedirect) {
       if (isRefreshing) {
@@ -68,4 +73,5 @@ api.interceptors.response.use(
   }
 );
 
+export { makePublic };
 export default api;

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { getCourses } from '../api/courseApi';
+import api, { makePublic } from '../api/apiClient';
 import { Link } from 'react-router-dom';
 
 export default function Home() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    getCourses().then(r => setCourses(r.data || [])).catch(() => setCourses([]));
+    // Use the "public" wrapper to skip auth redirect
+    api.get('/api/courses', makePublic())
+      .then(r => setCourses(r.data || []))
+      .catch(() => setCourses([]));
   }, []);
 
   return (
@@ -22,17 +25,19 @@ export default function Home() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Featured courses</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.length === 0 ? <p className="text-muted-foreground">No courses yet</p> :
-              courses.map(c => (
-                <div key={c._id} className="card">
-                  <h3 className="text-lg font-semibold">{c.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-2">{c.description}</p>
-                  <div className="mt-3 flex justify-between items-center">
-                    <span className="text-sm font-medium">${c.price ?? 0}</span>
-                    <Link className="text-blue-600 text-sm" to={`/courses/${c._id}`}>View</Link>
+            {courses.length === 0 
+              ? <p className="text-muted-foreground">No courses yet</p>
+              : courses.map(c => (
+                  <div key={c._id} className="card">
+                    <h3 className="text-lg font-semibold">{c.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-2">{c.description}</p>
+                    <div className="mt-3 flex justify-between items-center">
+                      <span className="text-sm font-medium">${c.price ?? 0}</span>
+                      <Link className="text-blue-600 text-sm" to={`/courses/${c._id}`}>View</Link>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+            }
           </div>
         </section>
       </main>
