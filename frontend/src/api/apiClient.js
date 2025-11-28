@@ -32,7 +32,7 @@ const makePublic = (config = {}) => ({ ...config, skipAuthRedirect: true });
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const original = error.config;
+    const original = error.config || {};
 
     // Skip auth redirect for public requests
     const skipRedirect = original?.skipAuthRedirect || original?.headers?.skipAuthRedirect;

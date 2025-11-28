@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { fetchMe, loginRequest, logoutRequest } from '../api/authApi';
-import api from '../api/apiClient';
+import api, { makePublic } from '../api/apiClient';
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // still loading data
-  const [initialized, setInitialized] = useState(false); // to track auth init complete
+  const [loading, setLoading] = useState(true);       // still loading data
+  const [initialized, setInitialized] = useState(false); // auth init complete
 
   useEffect(() => {
     let mounted = true;
@@ -16,14 +16,16 @@ export function AuthProvider({ children }) {
       try {
         const token = localStorage.getItem('accessToken');
         if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
-        const res = await fetchMe();
+
+        // Fetch current user as public request
+        const res = await api.get('/api/auth/me', makePublic());
         if (mounted) setUser(res.data.user);
       } catch (err) {
-        setUser(null);
+        setUser(null); // unauthenticated users won't be redirected
       } finally {
         if (mounted) {
           setLoading(false);
-          setInitialized(true); // auth check complete
+          setInitialized(true);
         }
       }
     };
