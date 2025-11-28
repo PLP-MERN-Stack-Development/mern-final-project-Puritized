@@ -38,7 +38,7 @@ export default function CoursesManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete course?")) return;
+    if (!window.confirm("Delete course?")) return; // ✅ FIXED
     try {
       await deleteCourseAdmin(id);
       setCourses(prev => prev.filter(c => c._id !== id));
