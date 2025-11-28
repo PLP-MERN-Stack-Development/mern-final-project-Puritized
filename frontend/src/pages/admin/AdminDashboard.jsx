@@ -5,7 +5,18 @@ import api from "../../api/apiClient";
 export default function AdminDashboard() {
   const { user } = useAuth();
 
-  const [stats, setStats] = useState(null);
+  // ✅ FIX: stats must always be an object
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalStudents: 0,
+    totalTeachers: 0,
+    totalCourses: 0,
+    totalEnrollments: 0,
+    pendingPayments: 0,
+    completedPayments: 0,
+    revenueLast30: 0,
+  });
+
   const [revenue, setRevenue] = useState([]);
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -31,11 +42,13 @@ export default function AdminDashboard() {
           api.get("/api/admin/payments"),
         ]);
 
-        setStats(summaryRes.data);
-        setRevenue(revenueRes.data.data || []);
-        setUsers(usersRes.data || []);
-        setCourses(coursesRes.data || []);
-        setPayments(paymentsRes.data || []);
+        setStats(summaryRes.data || stats);
+
+        // ✅ FIX: ALWAYS FORCE ARRAYS
+        setRevenue(Array.isArray(revenueRes.data?.data) ? revenueRes.data.data : []);
+        setUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
+        setCourses(Array.isArray(coursesRes.data) ? coursesRes.data : []);
+        setPayments(Array.isArray(paymentsRes.data) ? paymentsRes.data : []);
       } catch (err) {
         console.error("Admin dashboard error:", err);
         setError("Failed to load admin dashboard");
@@ -81,6 +94,8 @@ export default function AdminDashboard() {
   };
 
   const downloadCSV = (data, filename) => {
+    if (!Array.isArray(data) || data.length === 0) return;
+
     const csv =
       Object.keys(data[0]).join(",") +
       "\n" +
@@ -103,13 +118,12 @@ export default function AdminDashboard() {
     <div className="pt-24 p-6 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
 
-        {/* ✅ HEADER */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">Welcome back, {user?.name}</p>
         </div>
 
-        {/* ✅ STATS */}
+        {/* ✅ STATS SAFE */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <DashboardCard title="Users" value={stats.totalUsers} />
           <DashboardCard title="Students" value={stats.totalStudents} />
@@ -121,95 +135,24 @@ export default function AdminDashboard() {
           <DashboardCard title="Revenue (30 Days)" value={`₦${stats.revenueLast30}`} />
         </div>
 
-        {/* ✅ REVENUE TABLE */}
         <Section title="Revenue History">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th>Date</th>
-                <th>Transactions</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
             <tbody>
-              {revenue.map((r) => (
-                <tr key={r._id} className="border-b">
-                  <td>{r._id}</td>
-                  <td>{r.count}</td>
-                  <td>₦{r.total}</td>
-                </tr>
-              ))}
+              {Array.isArray(revenue) &&
+                revenue.map((r) => (
+                  <tr key={r._id}>
+                    <td>{r._id}</td>
+                    <td>{r.count}</td>
+                    <td>₦{r.total}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </Section>
-
-        {/* ✅ USERS 관리 */}
-        <Section title="Users Management">
-          <button
-            onClick={() => downloadCSV(users, "users.csv")}
-            className="mb-3 btn"
-          >
-            Download Users
-          </button>
-
-          {users.map((u) => (
-            <div key={u._id} className="flex justify-between border-b py-2">
-              <span>{u.name} — {u.role}</span>
-              <div className="space-x-2">
-                <select
-                  value={u.role}
-                  onChange={(e) => updateRole(u._id, e.target.value)}
-                >
-                  <option value="student">Student</option>
-                  <option value="teacher">Teacher</option>
-                  <option value="admin">Admin</option>
-                </select>
-                <button onClick={() => deleteUser(u._id)}>❌</button>
-              </div>
-            </div>
-          ))}
-        </Section>
-
-        {/* ✅ COURSES 관리 */}
-        <Section title="Courses Management">
-          {courses.map((c) => (
-            <div key={c._id} className="flex justify-between border-b py-2">
-              <span>{c.title}</span>
-              <div className="space-x-2">
-                {c.isPublished ? (
-                  <button onClick={() => unpublishCourse(c._id)}>Unpublish</button>
-                ) : (
-                  <button onClick={() => publishCourse(c._id)}>Publish</button>
-                )}
-                <button onClick={() => deleteCourse(c._id)}>❌</button>
-              </div>
-            </div>
-          ))}
-        </Section>
-
-        {/* ✅ PAYMENTS */}
-        <Section title="Payments">
-          <button
-            onClick={() => downloadCSV(payments, "payments.csv")}
-            className="mb-3 btn"
-          >
-            Download Payments
-          </button>
-
-          {payments.map((p) => (
-            <div key={p._id} className="flex justify-between border-b py-2">
-              <span>{p.email}</span>
-              <span>₦{p.amount}</span>
-            </div>
-          ))}
-        </Section>
-
       </div>
     </div>
   );
 }
-
-/* ✅ COMPONENTS */
 
 function DashboardCard({ title, value }) {
   return (

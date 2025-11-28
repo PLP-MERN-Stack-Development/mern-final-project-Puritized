@@ -7,21 +7,23 @@ export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);       // still loading data
-  const [initialized, setInitialized] = useState(false); // auth init complete
+  const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     let mounted = true;
+
     const init = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
+        if (token) {
+          api.defaults.headers.common.Authorization = `Bearer ${token}`;
+        }
 
-        // Fetch current user as public request
         const res = await api.get('/api/auth/me', makePublic());
         if (mounted) setUser(res.data.user);
       } catch (err) {
-        setUser(null); // unauthenticated users won't be redirected
+        setUser(null);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -29,6 +31,7 @@ export function AuthProvider({ children }) {
         }
       }
     };
+
     init();
     return () => (mounted = false);
   }, []);
@@ -36,10 +39,12 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const res = await loginRequest({ email, password });
     const { accessToken, user } = res.data;
+
     if (accessToken) {
       localStorage.setItem('accessToken', accessToken);
       api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     }
+
     setUser(user);
     return user;
   };
