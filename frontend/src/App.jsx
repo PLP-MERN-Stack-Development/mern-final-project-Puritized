@@ -18,13 +18,14 @@ export default function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          {/* Public routes */}
+
+          {/* ✅ PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
           <Route path="/courses" element={<CourseList />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
           <Route path="/login" element={<Login />} />
 
-          {/* Protected routes */}
+          {/* ✅ ROLE-PROTECTED ROUTES */}
           <Route
             path="/admin"
             element={
@@ -33,6 +34,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/teacher"
             element={
@@ -41,6 +43,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/student"
             element={
@@ -49,6 +52,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>
