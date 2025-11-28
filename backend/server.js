@@ -68,11 +68,13 @@ httpServer.listen(PORT, () => {
 });
 
 // Frontend build serving
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-// Fix React routes (catch-all) — only for non-API requests
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+const __dirname = path.resolve();
+
+// Serve React build
+app.use(express.static(path.join(__dirname, "frontend/dist")));
+
+// Catch-all route for React Router (FIXES /admin BLANK PAGE)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend/dist", "index.html"));
 });
