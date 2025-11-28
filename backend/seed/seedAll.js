@@ -101,10 +101,10 @@ async function seedAll() {
 
     // ✅ PAYMENTS (Completed + Pending)
     const paymentsData = courses.slice(0, 5).map((course, i) => ({
-      user: student._id,
+      student: student._id,          // ✅ required by schema
       course: course._id,
       amount: course.price,
-      paymentMethod: "paystack",
+      provider: "paystack",          // ✅ required by schema
       reference: `REF-${Date.now()}-${i}`,
       status: i % 2 === 0 ? "completed" : "pending",
       createdAt: new Date(Date.now() - i * 86400000),
