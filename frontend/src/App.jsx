@@ -17,15 +17,15 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Navbar />
-        <Routes>
 
-          {/* ✅ PUBLIC ROUTES */}
+        <Routes>
+          {/* ==================== PUBLIC ROUTES ==================== */}
           <Route path="/" element={<Home />} />
           <Route path="/courses" element={<CourseList />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
           <Route path="/login" element={<Login />} />
 
-          {/* ✅ ROLE-PROTECTED ROUTES */}
+          {/* ==================== PROTECTED ROUTES ==================== */}
           <Route
             path="/admin"
             element={
@@ -52,7 +52,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
         </Routes>
       </BrowserRouter>
     </AuthProvider>
