@@ -2,13 +2,13 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { fetchMe, loginRequest, logoutRequest } from '../api/authApi';
 import api from '../api/apiClient';
 
-
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // still loading data
+  const [initialized, setInitialized] = useState(false); // to track auth init complete
 
   useEffect(() => {
     let mounted = true;
@@ -21,7 +21,10 @@ export function AuthProvider({ children }) {
       } catch (err) {
         setUser(null);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          setInitialized(true); // auth check complete
+        }
       }
     };
     init();
@@ -52,7 +55,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, initialized, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

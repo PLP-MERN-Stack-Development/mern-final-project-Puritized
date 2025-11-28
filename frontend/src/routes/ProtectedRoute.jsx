@@ -3,9 +3,10 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const ProtectedRoute = ({ roles = [], children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, initialized } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  // Wait until auth state is fully initialized
+  if (loading || !initialized) return <div>Loading...</div>;
 
   // Only redirect to login if route requires roles
   if (roles.length && !user) return <Navigate to="/login" replace />;
