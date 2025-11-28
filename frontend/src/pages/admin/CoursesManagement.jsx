@@ -6,7 +6,7 @@ import {
   deleteCourseAdmin
 } from "../../api/adminApi";
 
-export default function CoursesManagement() {
+export default function CourseManagement() {
   const [courses, setCourses] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
