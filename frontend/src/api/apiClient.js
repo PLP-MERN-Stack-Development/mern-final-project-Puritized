@@ -14,7 +14,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// on 401 try refresh once
+// on 401, try refresh once
 let isRefreshing = false;
 let queued = [];
 
@@ -43,8 +43,9 @@ api.interceptors.response.use(
       original._retry = true;
       isRefreshing = true;
       try {
-        const r = await axios.get(`${BASE}/auth/refresh`, { withCredentials: true });
+        const r = await axios.get(`${BASE}/api/auth/refresh`, { withCredentials: true });
         const newToken = r.data.accessToken;
+        if (!newToken) throw new Error("No refresh token returned");
         localStorage.setItem('accessToken', newToken);
         api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
         processQueue(null, newToken);
