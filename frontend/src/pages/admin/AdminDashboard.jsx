@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../api/apiClient";
+import { Link } from "react-router-dom";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -122,6 +123,29 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">Welcome back, {user?.name}</p>
         </div>
+
+        <div className="flex flex-wrap gap-4 mb-10">
+  <Link
+    to="/admin/users"
+    className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
+  >
+    Manage Users
+  </Link>
+
+  <Link
+    to="/admin/courses"
+    className="px-5 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700"
+  >
+    Manage Courses
+  </Link>
+
+  <Link
+    to="/admin/payments"
+    className="px-5 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700"
+  >
+    Manage Payments
+  </Link>
+</div>
 
         {/* ✅ STATS SAFE */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
