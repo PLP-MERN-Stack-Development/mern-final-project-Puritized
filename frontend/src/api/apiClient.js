@@ -30,7 +30,11 @@ api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config;
-    if (err.response?.status === 401 && !original._retry) {
+
+    // CHECK: skip redirect if this request is public
+    const skipRedirect = original?.headers?.skipAuthRedirect;
+
+    if (err.response?.status === 401 && !original._retry && !skipRedirect) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           queued.push({ resolve, reject });
@@ -59,6 +63,7 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
     }
+
     return Promise.reject(err);
   }
 );
