@@ -27,7 +27,7 @@ const processQueue = (err, token = null) => {
 };
 
 // MARK public requests globally
-const makePublic = (config) => {
+const makePublic = (config = {}) => {
   return { ...config, skipAuthRedirect: true };
 };
 
@@ -41,7 +41,7 @@ api.interceptors.response.use(
 
     if (err.response?.status === 401 && !original._retry && !skipRedirect) {
       if (isRefreshing) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
           queued.push({ resolve, reject });
         }).then((token) => {
           original.headers.Authorization = `Bearer ${token}`;
