@@ -126,14 +126,14 @@ export default function AdminDashboard() {
 
         <div className="flex flex-wrap gap-4 mb-10">
   <Link
-    to="/admin/users"
+    to="/users"
     className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
   >
     Manage Users
   </Link>
 
   <Link
-    to="/admin/course"
+    to="/courses"
     className="px-5 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700"
   >
     Manage Courses
