@@ -6,7 +6,7 @@ import CourseDetails from "../pages/CourseDetails";
 import Dashboard from "../pages/Dashboard";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
-import CourseManagement from "../pages/admin/CourseManagement";
+import CourseManagement from "../pages/admin/CoursesManagement";
 import UsersManagement from "../pages/admin/UsersManagement";
 import PaymentsManagement from "../pages/admin/PaymentsManagement";
 
