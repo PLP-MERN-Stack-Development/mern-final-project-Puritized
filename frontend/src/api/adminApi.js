@@ -18,8 +18,9 @@ export const deleteUser = (userId) =>
 // ✅ COURSES
 // =======================
 
+// src/api/adminApi.js
 export const fetchCoursesAdmin = (page = 1, limit = 20, q = "") =>
-  api.get("/api/admin/courses", { params: { page, limit, q } });
+  api.get("/api/admin/courses", { params: { page, limit, q, t: Date.now() } });
 
 export const publishCourse = (courseId) =>
   api.post(`/api/admin/courses/${courseId}/publish`);
