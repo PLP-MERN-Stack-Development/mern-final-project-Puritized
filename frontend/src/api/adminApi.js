@@ -1,7 +1,10 @@
 // src/api/adminApi.js
 import api from "./apiClient";
 
-// USERS
+// =======================
+// ✅ USERS
+// =======================
+
 export const fetchUsers = (page = 1, limit = 20) =>
   api.get("/api/admin/users", { params: { page, limit } });
 
@@ -11,7 +14,10 @@ export const updateUserRole = (userId, role) =>
 export const deleteUser = (userId) =>
   api.delete(`/api/admin/users/${userId}`);
 
-// COURSES
+// =======================
+// ✅ COURSES
+// =======================
+
 export const fetchCoursesAdmin = (page = 1, limit = 20, q = "") =>
   api.get("/api/admin/courses", { params: { page, limit, q } });
 
@@ -24,7 +30,10 @@ export const unpublishCourse = (courseId) =>
 export const deleteCourseAdmin = (courseId) =>
   api.delete(`/api/admin/courses/${courseId}`);
 
-// PAYMENTS
+// =======================
+// ✅ PAYMENTS
+// =======================
+
 export const fetchPaymentsAdmin = (page = 1, limit = 20) =>
   api.get("/api/admin/payments", { params: { page, limit } });
 
