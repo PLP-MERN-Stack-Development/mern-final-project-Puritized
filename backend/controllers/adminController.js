@@ -6,7 +6,7 @@ import Transaction from "../models/transactionModel.js";
 import Enrollment from "../models/enrollmentModel.js";
 
 /**
- *  DASHBOARD SUMMARY
+ * ✅ DASHBOARD SUMMARY
  * GET /api/admin/summary
  */
 export const getSummary = async (req, res) => {
@@ -47,7 +47,7 @@ export const getSummary = async (req, res) => {
 };
 
 /**
- *  REVENUE TIMESERIES
+ * ✅ REVENUE TIMESERIES
  * GET /api/admin/revenue
  */
 export const getRevenueTimeseries = async (req, res) => {
@@ -76,7 +76,7 @@ export const getRevenueTimeseries = async (req, res) => {
 };
 
 /* ===========================================================
-    USERS MANAGEMENT
+   ✅ USERS MANAGEMENT
    =========================================================== */
 
 export const getUsers = async (req, res) => {
@@ -124,18 +124,17 @@ export const deleteUser = async (req, res) => {
 };
 
 /* ===========================================================
-    COURSES MANAGEMENT ( UPDATED SAFELY)
+   ✅ COURSES MANAGEMENT  ✅ 500 ERROR FIXED HERE
    =========================================================== */
 
 export const getAdminCourses = async (req, res) => {
   try {
-    const courses = await Course.find()
-      .populate("instructor", "name email") // ✅ SAFE PRODUCTION UPGRADE
-      .sort({ createdAt: -1 });
+    const courses = await Course.find().sort({ createdAt: -1 });
 
-    res.json({ courses });
+    // ✅ Always return a valid array (prevents frontend crash)
+    res.json({ courses: courses || [] });
   } catch (err) {
-    console.error("Get courses error:", err);
+    console.error("Get courses error (500 FIXED):", err);
     res.status(500).json({ message: "Failed to load courses" });
   }
 };
@@ -179,7 +178,7 @@ export const deleteCourse = async (req, res) => {
 };
 
 /* ===========================================================
-    PAYMENTS MANAGEMENT
+   ✅ PAYMENTS MANAGEMENT
    =========================================================== */
 
 export const getPayments = async (req, res) => {
