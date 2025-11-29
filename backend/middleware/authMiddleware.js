@@ -58,14 +58,8 @@ export const protect = requireAuth;
  * Must be used after `protect`.
  */
 export const isTeacher = (req, res, next) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  if (req.user.role !== "teacher") {
-    return res.status(403).json({ message: "Access denied: teacher only" });
-  }
-
+  if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+  if (req.user.role !== "teacher") return res.status(403).json({ message: "Access denied: teacher only" });
   next();
 };
 
@@ -74,13 +68,7 @@ export const isTeacher = (req, res, next) => {
  * Must be used after `protect`.
  */
 export const isAdmin = (req, res, next) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  if (req.user.role !== "admin") {
-    return res.status(403).json({ message: "Access denied: admin only" });
-  }
-
+  if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+  if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied: admin only" });
   next();
 };

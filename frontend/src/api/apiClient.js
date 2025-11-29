@@ -51,6 +51,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
+        // Refresh token request
         const r = await axios.get(`${BASE}/api/auth/refresh`, { withCredentials: true });
         const newToken = r.data.accessToken;
 
