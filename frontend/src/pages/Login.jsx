@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginRequest } from '../api/authApi';
 
 export default function Login() {
-  const { setUser, setToken } = useAuth();
+  const { setUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
@@ -15,14 +15,15 @@ export default function Login() {
     setBusy(true);
     setError(null);
     try {
+      // Public login request
       const res = await loginRequest(form);
       const { user, accessToken } = res.data;
 
-      // Store token and user in context/localStorage
+      // Store token locally and update context
       localStorage.setItem('accessToken', accessToken);
-      setToken(accessToken);
       setUser(user);
 
+      // Navigate based on role
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'teacher') navigate('/teacher');
       else navigate('/student');

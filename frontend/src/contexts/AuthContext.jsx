@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { fetchMe, loginRequest, logoutRequest, refreshRequest } from '../api/authApi';
-import api, { makePublic } from '../api/apiClient';
+import api from '../api/apiClient';
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -10,7 +10,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
-  // Initialize auth state on app load
   useEffect(() => {
     let mounted = true;
 
@@ -19,11 +18,13 @@ export function AuthProvider({ children }) {
         const token = localStorage.getItem('accessToken');
         if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-        // Attempt to fetch user
-        const res = await fetchMe();
-        if (mounted) setUser(res.data.user);
+        // Attempt to fetch user if token exists
+        if (token) {
+          const res = await fetchMe();
+          if (mounted) setUser(res.data.user);
+        }
       } catch (err) {
-        // Attempt refresh if token invalid
+        // Try refreshing token if invalid
         try {
           const r = await refreshRequest();
           const newToken = r.data.accessToken;
@@ -48,7 +49,6 @@ export function AuthProvider({ children }) {
     return () => (mounted = false);
   }, []);
 
-  // Login function
   const login = async (email, password) => {
     const res = await loginRequest({ email, password });
     const { accessToken, user } = res.data;
@@ -62,7 +62,6 @@ export function AuthProvider({ children }) {
     return user;
   };
 
-  // Logout function
   const logout = async () => {
     try {
       await logoutRequest();

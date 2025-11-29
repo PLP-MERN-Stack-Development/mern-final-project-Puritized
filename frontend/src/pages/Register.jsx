@@ -13,6 +13,7 @@ export default function Register() {
     setBusy(true);
     setError(null);
     try {
+      // Public registration request
       await registerRequest(form);
       alert('Registration successful! Please login.');
       navigate('/login');
