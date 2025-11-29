@@ -18,12 +18,6 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // Disable cache for GET requests
-  if (config.method === 'get') {
-    config.headers['Cache-Control'] = 'no-cache';
-    config.headers['Pragma'] = 'no-cache';
-  }
-
   return config;
 });
 
