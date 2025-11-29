@@ -133,7 +133,7 @@ export default function AdminDashboard() {
   </Link>
 
   <Link
-    to="/admin/courses"
+    to="/admin/course"
     className="px-5 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700"
   >
     Manage Courses
