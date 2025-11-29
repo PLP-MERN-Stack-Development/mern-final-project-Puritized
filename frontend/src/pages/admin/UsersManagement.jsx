@@ -1,99 +1,82 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
-import {
-  fetchUsers,
-  updateUserRole,
-  deleteUser
-} from "../../api/adminApi";
+import api from "../../api/apiClient";
 
 export default function UsersManagement() {
-  const { user } = useAuth();
   const [users, setUsers] = useState([]);
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
-  const load = async (p = 1) => {
-    setLoading(true);
+  const fetchUsers = async () => {
     try {
-      const res = await fetchUsers(p);
+      setLoading(true);
+      const res = await api.get("/api/admin/users");
       setUsers(res.data.users || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load users:", err);
       setError("Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(page); }, [page]);
+  const deleteUser = async (id) => {
+    if (!window.confirm("Delete this user?")) return;
 
-  const handleRole = async (id, role) => {
     try {
-      await updateUserRole(id, role);
-      setUsers((prev) => prev.map(u => u._id === id ? { ...u, role } : u));
+      await api.delete(`/api/admin/users/${id}`);
+      setUsers((prev) => prev.filter((u) => u._id !== id));
     } catch (err) {
-      console.error(err);
-      alert("Could not update role");
+      alert("Failed to delete user");
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Delete user?")) return;
-    try {
-      await deleteUser(id);
-      setUsers((prev) => prev.filter(u => u._id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Could not delete user");
-    }
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  if (loading) return <div className="p-6">Loading users...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
-    <div className="pt-24 p-6 md:ml-64">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Users Management</h1>
-        {loading ? <p>Loading...</p> :
-          error ? <p className="text-red-600">{error}</p> :
-          <>
-            <div className="bg-white shadow rounded p-4">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left">
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Created</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(u => (
-                    <tr key={u._id} className="border-t">
-                      <td>{u.name}</td>
-                      <td>{u.email}</td>
-                      <td>
-                        <select
-                          value={u.role}
-                          onChange={(e) => handleRole(u._id, e.target.value)}
-                          className="border rounded px-2 py-1"
-                        >
-                          <option value="student">student</option>
-                          <option value="teacher">teacher</option>
-                          <option value="admin">admin</option>
-                        </select>
-                      </td>
-                      <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <button onClick={() => handleDelete(u._id)} className="btn btn-sm">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        }
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Users Management</h1>
+
+      <div className="overflow-x-auto">
+        <table className="w-full border">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border p-2">Name</th>
+              <th className="border p-2">Email</th>
+              <th className="border p-2">Role</th>
+              <th className="border p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user._id}>
+                <td className="border p-2">{user.name}</td>
+                <td className="border p-2">{user.email}</td>
+                <td className="border p-2">{user.role}</td>
+                <td className="border p-2">
+                  <button
+                    onClick={() => deleteUser(user._id)}
+                    className="bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+
+            {users.length === 0 && (
+              <tr>
+                <td colSpan="4" className="p-4 text-center">
+                  No users found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

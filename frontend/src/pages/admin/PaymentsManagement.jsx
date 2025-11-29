@@ -1,65 +1,78 @@
 import React, { useEffect, useState } from "react";
-import { fetchPaymentsAdmin, markRefunded } from "../../api/adminApi";
+import api from "../../api/apiClient";
 
 export default function PaymentsManagement() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const load = async () => {
-    setLoading(true);
+  const fetchPayments = async () => {
     try {
-      const res = await fetchPaymentsAdmin();
+      setLoading(true);
+      const res = await api.get("/api/admin/payments");
       setPayments(res.data.payments || []);
     } catch (err) {
-      console.error(err);
-      alert("Failed to load payments");
+      console.error("Failed to load payments:", err);
+      setError("Failed to load payments");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    fetchPayments();
+  }, []);
 
-  const handleRefund = async (id) => {
-    if (!confirm("Mark payment refunded?")) return;
-    try {
-      await markRefunded(id);
-      setPayments(prev => prev.map(p => p._id === id ? { ...p, refunded: true } : p));
-    } catch (err) {
-      console.error(err);
-      alert("Refund failed");
-    }
-  };
+  if (loading) return <div className="p-6">Loading payments...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
-    <div className="pt-24 p-6 md:ml-64">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Payments Management</h1>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Payments Management</h1>
 
-        {loading ? <p>Loading...</p> : (
-          <div className="bg-white shadow rounded p-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left">
-                  <th>Email</th><th>Amount</th><th>Course</th><th>Status</th><th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map(p => (
-                  <tr key={p._id} className="border-t">
-                    <td>{p.email}</td>
-                    <td>${p.amount}</td>
-                    <td>{p.courseTitle}</td>
-                    <td>{p.refunded ? "Refunded" : p.status || "Paid"}</td>
-                    <td>
-                      {!p.refunded && <button onClick={() => handleRefund(p._id)} className="btn btn-sm">Mark refunded</button>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      <div className="overflow-x-auto">
+        <table className="w-full border">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border p-2">User</th>
+              <th className="border p-2">Course</th>
+              <th className="border p-2">Amount</th>
+              <th className="border p-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {payments.map((pay) => (
+              <tr key={pay._id}>
+                <td className="border p-2">
+                  {pay.user?.name || "N/A"}
+                </td>
+                <td className="border p-2">
+                  {pay.course?.title || "N/A"}
+                </td>
+                <td className="border p-2">₦{pay.amount}</td>
+                <td className="border p-2">
+                  <span
+                    className={`px-2 py-1 rounded text-white ${
+                      pay.status === "success"
+                        ? "bg-green-600"
+                        : "bg-yellow-600"
+                    }`}
+                  >
+                    {pay.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+
+            {payments.length === 0 && (
+              <tr>
+                <td colSpan="4" className="p-4 text-center">
+                  No payments found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
