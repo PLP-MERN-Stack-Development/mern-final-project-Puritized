@@ -6,7 +6,7 @@ import Transaction from "../models/transactionModel.js";
 import Enrollment from "../models/enrollmentModel.js";
 
 /**
- * ✅ DASHBOARD SUMMARY
+ *  DASHBOARD SUMMARY
  * GET /api/admin/summary
  */
 export const getSummary = async (req, res) => {
@@ -19,7 +19,6 @@ export const getSummary = async (req, res) => {
     const pendingPayments = await Payment.countDocuments({ status: "pending" });
     const completedPayments = await Payment.countDocuments({ status: "completed" });
 
-    // ✅ Revenue in last 30 days
     const thirtyDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30);
 
     const revenueAgg = await Payment.aggregate([
@@ -48,7 +47,7 @@ export const getSummary = async (req, res) => {
 };
 
 /**
- * ✅ REVENUE TIMESERIES
+ *  REVENUE TIMESERIES
  * GET /api/admin/revenue
  */
 export const getRevenueTimeseries = async (req, res) => {
@@ -77,12 +76,9 @@ export const getRevenueTimeseries = async (req, res) => {
 };
 
 /* ===========================================================
-   ✅ USERS MANAGEMENT
+    USERS MANAGEMENT
    =========================================================== */
 
-/**
- * GET /api/admin/users
- */
 export const getUsers = async (req, res) => {
   try {
     const users = await User.find()
@@ -96,9 +92,6 @@ export const getUsers = async (req, res) => {
   }
 };
 
-/**
- * PATCH /api/admin/users/:id/role
- */
 export const updateUserRole = async (req, res) => {
   try {
     const { role } = req.body;
@@ -120,9 +113,6 @@ export const updateUserRole = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/admin/users/:id
- */
 export const deleteUser = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
@@ -134,15 +124,15 @@ export const deleteUser = async (req, res) => {
 };
 
 /* ===========================================================
-   ✅ COURSES MANAGEMENT
+    COURSES MANAGEMENT ( UPDATED SAFELY)
    =========================================================== */
 
-/**
- * GET /api/admin/courses
- */
 export const getAdminCourses = async (req, res) => {
   try {
-    const courses = await Course.find().sort({ createdAt: -1 });
+    const courses = await Course.find()
+      .populate("instructor", "name email") // ✅ SAFE PRODUCTION UPGRADE
+      .sort({ createdAt: -1 });
+
     res.json({ courses });
   } catch (err) {
     console.error("Get courses error:", err);
@@ -150,9 +140,6 @@ export const getAdminCourses = async (req, res) => {
   }
 };
 
-/**
- * POST /api/admin/courses/:id/publish
- */
 export const publishCourse = async (req, res) => {
   try {
     const course = await Course.findByIdAndUpdate(
@@ -167,9 +154,6 @@ export const publishCourse = async (req, res) => {
   }
 };
 
-/**
- * POST /api/admin/courses/:id/unpublish
- */
 export const unpublishCourse = async (req, res) => {
   try {
     const course = await Course.findByIdAndUpdate(
@@ -184,9 +168,6 @@ export const unpublishCourse = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/admin/courses/:id
- */
 export const deleteCourse = async (req, res) => {
   try {
     await Course.findByIdAndDelete(req.params.id);
@@ -198,12 +179,9 @@ export const deleteCourse = async (req, res) => {
 };
 
 /* ===========================================================
-   ✅ PAYMENTS MANAGEMENT
+    PAYMENTS MANAGEMENT
    =========================================================== */
 
-/**
- * GET /api/admin/payments
- */
 export const getPayments = async (req, res) => {
   try {
     const payments = await Payment.find().sort({ createdAt: -1 });
@@ -214,10 +192,6 @@ export const getPayments = async (req, res) => {
   }
 };
 
-/**
- * POST /api/admin/payments/:id/refund
- * (Flags only – real Paystack/Stripe refunds should go via webhook)
- */
 export const refundPayment = async (req, res) => {
   try {
     const payment = await Payment.findByIdAndUpdate(

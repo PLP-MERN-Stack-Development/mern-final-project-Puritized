@@ -18,22 +18,22 @@ import {
 
 const router = express.Router();
 
-// ✅ DASHBOARD ANALYTICS
+//  DASHBOARD ANALYTICS
 router.get("/summary", requireAuth, isAdmin, getSummary);
 router.get("/revenue", requireAuth, isAdmin, getRevenueTimeseries);
 
-// ✅ USER MANAGEMENT
+//  USER MANAGEMENT
 router.get("/users", requireAuth, isAdmin, getUsers);
 router.patch("/users/:id/role", requireAuth, isAdmin, updateUserRole);
 router.delete("/users/:id", requireAuth, isAdmin, deleteUser);
 
-// ✅ COURSE MANAGEMENT
+//  COURSE MANAGEMENT  (THIS FIXES YOUR 404)
 router.get("/courses", requireAuth, isAdmin, getAdminCourses);
 router.post("/courses/:id/publish", requireAuth, isAdmin, publishCourse);
 router.post("/courses/:id/unpublish", requireAuth, isAdmin, unpublishCourse);
 router.delete("/courses/:id", requireAuth, isAdmin, deleteCourse);
 
-// ✅ PAYMENT MANAGEMENT
+//  PAYMENT MANAGEMENT
 router.get("/payments", requireAuth, isAdmin, getPayments);
 router.post("/payments/:id/refund", requireAuth, isAdmin, refundPayment);
 
