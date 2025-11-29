@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 import {
   fetchCoursesAdmin,
   publishCourse,
   unpublishCourse,
   deleteCourseAdmin
-} from "../../api/adminApi";
+} from "/../../api/adminApi";
 
 export default function CoursesManagement() {
   const [courses, setCourses] = useState([]);
