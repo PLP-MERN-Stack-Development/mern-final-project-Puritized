@@ -60,14 +60,16 @@ app.get("/api/ping", (req, res) => res.json({ ok: true }));
 
 // Frontend build serving
 
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 // Serve React build
-app.use(express.static(path.join(__dirname, "frontend/dist")));
+app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
 
 // Catch-all route for React Router (FIXES /admin BLANK PAGE)
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "..", "frontend", "dist", "index.html"));
 });
 
 
