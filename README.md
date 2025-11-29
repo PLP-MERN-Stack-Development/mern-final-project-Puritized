@@ -1,52 +1,172 @@
-# MERN Stack Capstone Project
+# EduBridge — Online Learning Platform (MERN Stack)
 
-This assignment focuses on designing, developing, and deploying a comprehensive full-stack MERN application that showcases all the skills you've learned throughout the course.
+EduBridge is a full-stack online learning platform built with:
+- **Frontend:** React + Vite + TailwindCSS
+- **Backend:** Node.js + Express
+- **Database:** MongoDB
+- **Authentication:** JWT + Refresh Tokens
+- **Payments:** Paystack / Stripe
+- **Real-Time:** Socket.io
 
-## Assignment Overview
+---
 
-You will:
-1. Plan and design a full-stack MERN application
-2. Develop a robust backend with MongoDB, Express.js, and Node.js
-3. Create an interactive frontend with React.js
-4. Implement testing across the entire application
-5. Deploy the application to production
+## 🚀 Features
+- Role-based authentication (Admin, Teacher, Student)
+- Course creation & publishing
+- Student enrollment
+- Secure payments
+- Admin analytics dashboard
+- Real-time chat
+- Public course browsing
+- Protected dashboards
 
-## Getting Started
+---
 
-1. Accept the GitHub Classroom assignment
-2. Clone the repository to your local machine
-3. Follow the instructions in the `Week8-Assignment.md` file
-4. Plan, develop, and deploy your capstone project
+## 🛠️ Installation & Setup
 
-## Files Included
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/YOUR-REPO/edubridge.git
+cd edubridge
 
-- `Week8-Assignment.md`: Detailed assignment instructions
 
-## Requirements
 
-- Node.js (v18 or higher)
-- MongoDB (local installation or Atlas account)
-- npm or yarn
-- Git and GitHub account
-- Accounts on deployment platforms (Render/Vercel/Netlify/etc.)
+---
 
-## Project Ideas
+# ✅ 2. **API Documentation**
 
-The `Week8-Assignment.md` file includes several project ideas, but you're encouraged to develop your own idea that demonstrates your skills and interests.
+```md
+# EduBridge API Documentation
 
-## Submission
+Base URL:
+http://localhost:5000/api
 
-Your project will be automatically submitted when you push to your GitHub Classroom repository. Make sure to:
+---
 
-1. Commit and push your code regularly
-2. Include comprehensive documentation
-3. Deploy your application and add the live URL to your README.md
-4. Create a video demonstration and include the link in your README.md
+## 🔐 Authentication
 
-## Resources
+### POST /auth/login
+Login user
+```json
+{
+  "email": "user@email.com",
+  "password": "password"
+}
 
-- [MongoDB Documentation](https://docs.mongodb.com/)
-- [Express.js Documentation](https://expressjs.com/)
-- [React Documentation](https://react.dev/)
-- [Node.js Documentation](https://nodejs.org/en/docs/)
-- [GitHub Classroom Guide](https://docs.github.com/en/education/manage-coursework-with-github-classroom) 
+
+
+---
+
+# ✅ 3. **User Guide**
+
+```md
+# EduBridge User Guide
+
+---
+
+## 👤 Student Guide
+1. Open the website
+2. Browse courses on the Home page
+3. Click on a course to view details
+4. Register / Login
+5. Enroll in course
+6. Make payment
+7. Access learning content
+
+---
+
+## 👨‍🏫 Teacher Guide
+1. Login as a teacher
+2. Go to Teacher Dashboard
+3. Create a course
+4. Upload lessons
+5. Publish course
+6. Track student enrollments
+
+---
+
+## 👑 Admin Guide
+1. Login as Admin
+2. Access Admin Dashboard
+3. View system statistics
+4. Manage users
+5. Manage courses
+6. View payments & revenue
+7. Promote/demote users
+8. Delete invalid users or courses
+
+---
+
+## 🔐 Security
+- All dashboards are protected
+- Token-based authentication
+- Secure payments only
+
+
+
+# EduBridge Technical Architecture
+
+---
+
+## 🏗 System Architecture
+
+Frontend (React + Vite)
+        ↓
+   API Requests (Axios)
+        ↓
+Backend (Node.js + Express)
+        ↓
+Database (MongoDB Atlas)
+
+---
+
+## 🔐 Authentication Flow
+1. User logs in
+2. Backend issues Access Token + Refresh Token
+3. Access token stored in localStorage
+4. Refresh token stored in HTTP-only cookie
+5. Auto refresh on 401 errors
+
+---
+
+## 🧑‍💼 Role-Based Access Control
+- Admin → Full system access
+- Teacher → Course management
+- Student → Enrollment & learning
+
+---
+
+## 💳 Payment Flow
+1. Student initiates payment
+2. Paystack/Stripe processes payment
+3. Webhook confirms transaction
+4. Enrollment activated automatically
+
+---
+
+## 📡 Real-Time System
+- Socket.io used for:
+  - Live chat
+  - Notifications
+  - Real-time updates
+
+---
+
+## ⚙ Tech Stack Summary
+
+| Layer | Technology |
+|--------|-----------|
+| Frontend | React, Vite, Tailwind |
+| Backend | Node.js, Express |
+| Database | MongoDB |
+| Auth | JWT |
+| Payments | Paystack / Stripe |
+| Realtime | Socket.io |
+| Hosting | Render |
+
+---
+
+✅ Fully modular  
+✅ Secure API  
+✅ Scalable for thousands of users  
+✅ Production-ready
