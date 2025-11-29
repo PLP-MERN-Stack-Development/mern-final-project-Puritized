@@ -15,10 +15,13 @@ export default function CoursesManagement() {
     setLoading(true);
     try {
       const res = await fetchCoursesAdmin(p);
-      setCourses(res.data.courses || []);
+      console.log("Courses API response:", res.data); // ✅ Debug API response
+      // Accept either array directly or object with courses
+      setCourses(Array.isArray(res.data) ? res.data : res.data.courses || []);
     } catch (err) {
-      console.error(err);
-      alert("Failed to load courses");
+      console.error("Failed to load courses:", err);
+      alert("Failed to load courses. Check console for details.");
+      setCourses([]); // Ensure empty array on error
     } finally {
       setLoading(false);
     }
@@ -30,7 +33,9 @@ export default function CoursesManagement() {
     try {
       if (isPublished) await unpublishCourse(id);
       else await publishCourse(id);
-      setCourses(prev => prev.map(c => c._id === id ? { ...c, isPublished: !isPublished } : c));
+      setCourses(prev =>
+        prev.map(c => c._id === id ? { ...c, isPublished: !isPublished } : c)
+      );
     } catch (err) {
       console.error(err);
       alert("Could not update course");
@@ -38,7 +43,7 @@ export default function CoursesManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete course?")) return; // ✅ FIXED
+    if (!window.confirm("Delete course?")) return;
     try {
       await deleteCourseAdmin(id);
       setCourses(prev => prev.filter(c => c._id !== id));
@@ -53,7 +58,9 @@ export default function CoursesManagement() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Courses Management</h1>
 
-        {loading ? <p>Loading...</p> : (
+        {loading ? (
+          <p>Loading...</p>
+        ) : courses.length > 0 ? (
           <div className="grid gap-4">
             {courses.map(c => (
               <div key={c._id} className="p-4 bg-white shadow rounded flex justify-between items-center">
@@ -62,14 +69,26 @@ export default function CoursesManagement() {
                   <p className="text-sm text-muted-foreground">{c.shortDescription}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => togglePublish(c._id, c.isPublished)} className="btn btn-sm">
+                  <button
+                    onClick={() => togglePublish(c._id, c.isPublished)}
+                    className="btn btn-sm"
+                  >
                     {c.isPublished ? "Unpublish" : "Publish"}
                   </button>
-                  <button onClick={() => handleDelete(c._id)} className="btn btn-danger btn-sm">Delete</button>
+                  <button
+                    onClick={() => handleDelete(c._id)}
+                    className="btn btn-danger btn-sm"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
           </div>
+        ) : (
+          <p className="text-center text-gray-500 mt-4">
+            No courses found or failed to load.
+          </p>
         )}
       </div>
     </div>
