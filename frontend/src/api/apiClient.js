@@ -13,10 +13,16 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
 
-  //  ONLY attach token if request is NOT public
+  // ✅ ONLY attach token if request is NOT public
   if (token && !config?.skipAuth) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // ✅ ✅ ✅ CORS FIX — REMOVE FORBIDDEN HEADERS
+  delete config.headers["cache-control"];
+  delete config.headers["Cache-Control"];
+  delete config.headers["Pragma"];
+  delete config.headers["Expires"];
 
   return config;
 });
@@ -43,7 +49,7 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config || {};
 
-    //  Skip refresh logic for public routes
+    // ✅ Skip refresh logic for public routes
     if (original?.skipAuth) {
       return Promise.reject(error);
     }

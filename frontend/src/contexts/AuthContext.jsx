@@ -18,13 +18,11 @@ export function AuthProvider({ children }) {
         const token = localStorage.getItem('accessToken');
         if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-        // Attempt to fetch user if token exists
         if (token) {
           const res = await fetchMe();
           if (mounted) setUser(res.data.user);
         }
       } catch (err) {
-        // Try refreshing token if invalid
         try {
           const r = await refreshRequest();
           const newToken = r.data.accessToken;
