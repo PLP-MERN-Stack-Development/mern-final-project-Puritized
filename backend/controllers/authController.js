@@ -17,6 +17,7 @@ const COOKIE_OPTIONS = {
 function signAccess(user) {
   return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: ACCESS_EXPIRES });
 }
+
 function signRefresh(user) {
   return jwt.sign({ id: user._id }, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRES });
 }
@@ -91,8 +92,40 @@ export const refresh = async (req, res) => {
 };
 
 export const me = async (req, res) => {
-  // Return null user instead of 401 for public access
-  return res.json({ user: req.user ? req.user.toJSON() : null });
+  try {
+    let token;
+
+    // 1️⃣ Check Authorization header first
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
+
+    // 2️⃣ Fallback to cookie
+    if (!token) token = req.cookies?.refreshToken;
+
+    if (!token) return res.status(401).json({ user: null, message: "Unauthorized" });
+
+    let payload;
+
+    try {
+      payload = jwt.verify(token, JWT_SECRET); // access token
+    } catch {
+      try {
+        payload = jwt.verify(token, REFRESH_SECRET); // refresh token
+      } catch {
+        return res.status(401).json({ user: null, message: "Invalid token" });
+      }
+    }
+
+    const user = await User.findById(payload.id);
+    if (!user) return res.status(401).json({ user: null, message: "User not found" });
+
+    return res.json({ user: user.toJSON() });
+  } catch (err) {
+    console.error("me route error:", err);
+    return res.status(500).json({ user: null, message: "Server error" });
+  }
 };
 
 export const logout = async (req, res) => {
