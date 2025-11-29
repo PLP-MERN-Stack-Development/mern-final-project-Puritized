@@ -20,7 +20,7 @@ export default function CoursesManagement() {
       const res = await fetchCoursesAdmin(p);
       console.log("Courses API response:", res.data);
 
-      // ✅ 304/empty response protection
+      // ✅ Handle 304 / empty responses safely
       if (!res || !res.data) {
         setCourses([]);
         setTotalPages(1);
@@ -32,6 +32,7 @@ export default function CoursesManagement() {
         : res.data.courses || [];
 
       setCourses(courseList);
+
       if (res.data.totalPages) setTotalPages(res.data.totalPages);
     } catch (err) {
       console.error("Failed to load courses:", err);

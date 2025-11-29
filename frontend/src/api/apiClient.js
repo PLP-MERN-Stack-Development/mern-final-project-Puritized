@@ -4,29 +4,26 @@ const BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 const api = axios.create({
   baseURL: BASE,
-  withCredentials: true,
-  headers: {
-    "Cache-Control": "no-cache",
-    Pragma: "no-cache",
-    Expires: "0"
-  }
+  withCredentials: true
 });
 
-// ✅ Attach access token + FORCE disable 304 cache
+/* ============================
+    REQUEST INTERCEPTOR
+============================ */
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
 
-  if (token) {
+  //  ONLY attach token if request is NOT public
+  if (token && !config?.skipAuth) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
-  // ✅ Critical fix: stop browser/Cloudflare 304 caching
-  config.headers["If-None-Match"] = "";
 
   return config;
 });
 
-// ✅ Queue for handling token refresh
+/* ============================
+    TOKEN REFRESH LOGIC
+============================ */
 let isRefreshing = false;
 let queued = [];
 
@@ -38,18 +35,20 @@ const processQueue = (err, token = null) => {
   queued = [];
 };
 
-// ✅ MARK public requests globally
-const makePublic = (config = {}) => ({ ...config, skipAuthRedirect: true });
-
+/* ============================
+    RESPONSE INTERCEPTOR
+============================ */
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config || {};
-    const skipRedirect =
-      original?.skipAuthRedirect || original?.headers?.skipAuthRedirect;
 
-    // ✅ Handle token expiration safely
-    if (error.response?.status === 401 && !original._retry && !skipRedirect) {
+    //  Skip refresh logic for public routes
+    if (original?.skipAuth) {
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401 && !original._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           queued.push({ resolve, reject });
@@ -68,8 +67,7 @@ api.interceptors.response.use(
         });
 
         const newToken = r.data.accessToken;
-
-        if (!newToken) throw new Error("No refresh token returned");
+        if (!newToken) throw new Error("No refresh token");
 
         localStorage.setItem("accessToken", newToken);
         api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
@@ -90,5 +88,12 @@ api.interceptors.response.use(
   }
 );
 
-export { makePublic };
+/* ============================
+    HELPER FOR PUBLIC REQUESTS
+============================ */
+export const makePublic = (config = {}) => ({
+  ...config,
+  skipAuth: true
+});
+
 export default api;
