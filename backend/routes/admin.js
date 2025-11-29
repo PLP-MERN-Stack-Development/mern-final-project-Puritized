@@ -1,3 +1,8 @@
+router.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
+
 import express from "express";
 import { requireAuth } from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/roleMiddleware.js";

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import {
   fetchCoursesAdmin,
@@ -13,7 +12,7 @@ export default function CoursesManagement() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState({}); // Tracks button loading
+  const [actionLoading, setActionLoading] = useState({});
 
   const load = async (p = 1) => {
     setLoading(true);
@@ -21,13 +20,18 @@ export default function CoursesManagement() {
       const res = await fetchCoursesAdmin(p);
       console.log("Courses API response:", res.data);
 
-      // Accept either array or object with courses
+      // ✅ 304/empty response protection
+      if (!res || !res.data) {
+        setCourses([]);
+        setTotalPages(1);
+        return;
+      }
+
       const courseList = Array.isArray(res.data)
         ? res.data
         : res.data.courses || [];
-      setCourses(courseList);
 
-      // Handle pagination if API provides total pages
+      setCourses(courseList);
       if (res.data.totalPages) setTotalPages(res.data.totalPages);
     } catch (err) {
       console.error("Failed to load courses:", err);
@@ -43,34 +47,36 @@ export default function CoursesManagement() {
   }, [page]);
 
   const togglePublish = async (id, isPublished) => {
-    setActionLoading(prev => ({ ...prev, [id]: true }));
+    setActionLoading((prev) => ({ ...prev, [id]: true }));
     try {
       if (isPublished) await unpublishCourse(id);
       else await publishCourse(id);
 
-      setCourses(prev =>
-        prev.map(c => (c._id === id ? { ...c, isPublished: !isPublished } : c))
+      setCourses((prev) =>
+        prev.map((c) =>
+          c._id === id ? { ...c, isPublished: !isPublished } : c
+        )
       );
     } catch (err) {
       console.error(err);
       alert("Could not update course");
     } finally {
-      setActionLoading(prev => ({ ...prev, [id]: false }));
+      setActionLoading((prev) => ({ ...prev, [id]: false }));
     }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete course?")) return;
 
-    setActionLoading(prev => ({ ...prev, [id]: true }));
+    setActionLoading((prev) => ({ ...prev, [id]: true }));
     try {
       await deleteCourseAdmin(id);
-      setCourses(prev => prev.filter(c => c._id !== id));
+      setCourses((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
       console.error(err);
       alert("Delete failed");
     } finally {
-      setActionLoading(prev => ({ ...prev, [id]: false }));
+      setActionLoading((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -89,11 +95,16 @@ export default function CoursesManagement() {
         ) : courses.length > 0 ? (
           <>
             <div className="grid gap-4">
-              {courses.map(c => (
-                <div key={c._id} className="p-4 bg-white shadow rounded flex justify-between items-center">
+              {courses.map((c) => (
+                <div
+                  key={c._id}
+                  className="p-4 bg-white shadow rounded flex justify-between items-center"
+                >
                   <div>
                     <h3 className="font-semibold">{c.title}</h3>
-                    <p className="text-sm text-muted-foreground">{c.shortDescription}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {c.shortDescription}
+                    </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -107,6 +118,7 @@ export default function CoursesManagement() {
                         ? "Unpublish"
                         : "Publish"}
                     </button>
+
                     <button
                       onClick={() => handleDelete(c._id)}
                       className="btn btn-danger btn-sm"
@@ -119,7 +131,7 @@ export default function CoursesManagement() {
               ))}
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center gap-2 mt-6">
                 <button
@@ -129,7 +141,11 @@ export default function CoursesManagement() {
                 >
                   Previous
                 </button>
-                <span className="px-2 py-1 border rounded">{page} / {totalPages}</span>
+
+                <span className="px-2 py-1 border rounded">
+                  {page} / {totalPages}
+                </span>
+
                 <button
                   className="btn btn-outline"
                   onClick={() => handlePageChange(page + 1)}
