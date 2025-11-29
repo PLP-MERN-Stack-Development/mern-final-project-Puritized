@@ -57,15 +57,6 @@ app.use("/api/admin", adminRoutes);
 // Test route
 app.get("/api/ping", (req, res) => res.json({ ok: true }));
 
-// HTTP + SOCKET
-const httpServer = http.createServer(app);
-const io = createSocketServer(httpServer);
-
-// Start server
-const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
-  console.log(`✅ Server listening on ${PORT}`);
-});
 
 // Frontend build serving
 
@@ -77,4 +68,15 @@ app.use(express.static(path.join(__dirname, "frontend/dist")));
 // Catch-all route for React Router (FIXES /admin BLANK PAGE)
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend/dist", "index.html"));
+});
+
+
+// HTTP + SOCKET
+const httpServer = http.createServer(app);
+const io = createSocketServer(httpServer);
+
+// Start server
+const PORT = process.env.PORT || 5000;
+httpServer.listen(PORT, () => {
+  console.log(`✅ Server listening on ${PORT}`);
 });
