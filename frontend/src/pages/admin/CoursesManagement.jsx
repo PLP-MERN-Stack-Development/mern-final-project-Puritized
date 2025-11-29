@@ -6,7 +6,7 @@ import {
   publishCourse,
   unpublishCourse,
   deleteCourseAdmin
-} from "/../../api/adminApi";
+} from "../../api/adminApi";
 
 export default function CoursesManagement() {
   const [courses, setCourses] = useState([]);
