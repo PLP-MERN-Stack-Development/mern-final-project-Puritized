@@ -7,14 +7,21 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Use the "public" wrapper to skip auth redirect
-    api.get('/api/courses', makePublic())
-      .then(res => setCourses(res.data || []))
-      .catch(err => {
+    // Fetch courses as a public request (skip auth redirect)
+    const fetchCourses = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get('/api/courses', makePublic());
+        setCourses(res.data || []);
+      } catch (err) {
         console.error('Failed to load courses:', err);
         setCourses([]);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
   }, []);
 
   return (
@@ -37,7 +44,7 @@ export default function Home() {
               {courses.length === 0 ? (
                 <p className="text-muted-foreground">No courses yet</p>
               ) : (
-                courses.map(c => (
+                courses.map((c) => (
                   <div key={c._id} className="card border p-4 rounded shadow">
                     <h3 className="text-lg font-semibold">{c.title}</h3>
                     <p className="text-sm text-muted-foreground mt-2">{c.description}</p>

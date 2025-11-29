@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { fetchMe, loginRequest, logoutRequest } from '../api/authApi';
+import { fetchMe, loginRequest, logoutRequest, refreshRequest } from '../api/authApi';
 import api, { makePublic } from '../api/apiClient';
 
 const AuthContext = createContext();
@@ -10,20 +10,32 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
+  // Initialize auth state on app load
   useEffect(() => {
     let mounted = true;
 
     const init = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        if (token) {
-          api.defaults.headers.common.Authorization = `Bearer ${token}`;
-        }
+        if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-        const res = await api.get('/api/auth/me', makePublic());
+        // Attempt to fetch user
+        const res = await fetchMe();
         if (mounted) setUser(res.data.user);
       } catch (err) {
-        setUser(null);
+        // Attempt refresh if token invalid
+        try {
+          const r = await refreshRequest();
+          const newToken = r.data.accessToken;
+          if (newToken) {
+            localStorage.setItem('accessToken', newToken);
+            api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+            const res = await fetchMe();
+            if (mounted) setUser(res.data.user);
+          }
+        } catch {
+          if (mounted) setUser(null);
+        }
       } finally {
         if (mounted) {
           setLoading(false);
@@ -36,6 +48,7 @@ export function AuthProvider({ children }) {
     return () => (mounted = false);
   }, []);
 
+  // Login function
   const login = async (email, password) => {
     const res = await loginRequest({ email, password });
     const { accessToken, user } = res.data;
@@ -49,11 +62,12 @@ export function AuthProvider({ children }) {
     return user;
   };
 
+  // Logout function
   const logout = async () => {
     try {
       await logoutRequest();
     } catch (e) {
-      console.error('logout error', e);
+      console.error('Logout error:', e);
     } finally {
       localStorage.removeItem('accessToken');
       setUser(null);
@@ -62,7 +76,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, initialized, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, initialized, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
