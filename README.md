@@ -170,3 +170,22 @@ Database (MongoDB Atlas)
 ✅ Secure API  
 ✅ Scalable for thousands of users  
 ✅ Production-ready
+
+## Sreenshot and Video
+
+<img width="1361" height="607" alt="image" src="https://github.com/user-attachments/assets/f20752ef-c30d-4062-82e9-44d8bdfff0b7" />
+
+## Frontend URL
+https://mern-final-project-puritized-1.onrender.com/
+
+## Demo Login
+1. ## Admin
+      User: admin
+      Password: password123
+2.  ## Teacher
+      User: teacher
+      Password: password123
+3.  ## Student
+      User: student
+      Password: password123
+
