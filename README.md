@@ -175,6 +175,8 @@ Database (MongoDB Atlas)
 
 <img width="1361" height="607" alt="image" src="https://github.com/user-attachments/assets/f20752ef-c30d-4062-82e9-44d8bdfff0b7" />
 
+video: https://youtu.be/ac11bJmZWIo
+
 ## Frontend URL
 https://mern-final-project-puritized-1.onrender.com/
 
