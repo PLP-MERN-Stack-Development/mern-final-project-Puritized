@@ -59,7 +59,21 @@ export const protect = requireAuth;
  */
 export const isTeacher = (req, res, next) => {
   if (!req.user) return res.status(401).json({ message: "Unauthorized" });
-  if (req.user.role !== "teacher") return res.status(403).json({ message: "Access denied: teacher only" });
+  if (req.user.role !== "teacher") {
+    return res.status(403).json({ message: "Access denied: teacher only" });
+  }
+  next();
+};
+
+/**
+ * NEW: Middleware to check if the authenticated user is a student.
+ * Must be used after `protect`.
+ */
+export const isStudent = (req, res, next) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+  if (req.user.role !== "student") {
+    return res.status(403).json({ message: "Access denied: student only" });
+  }
   next();
 };
 
@@ -69,6 +83,8 @@ export const isTeacher = (req, res, next) => {
  */
 export const isAdmin = (req, res, next) => {
   if (!req.user) return res.status(401).json({ message: "Unauthorized" });
-  if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied: admin only" });
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied: admin only" });
+  }
   next();
 };

@@ -9,6 +9,12 @@ import coursesRoutes from "./routes/courseRoutes.js";
 import authRoutes from "./routes/authRoutes.js"; 
 import paymentsRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/admin.js";
+import teacherRoutes from "./routes/teacherRoutes.js";
+import teacherLessonRoutes from "./routes/teacherLessonRoutes.js";
+import studentRoutes from "./routes/studentRoutes.js";
+import progressRoutes from "./routes/progressRoutes.js";
+
+
 import { createSocketServer } from "./sockets/index.js";
 
 import path from "path";
@@ -53,6 +59,10 @@ app.use("/api/courses", coursesRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/teacher", teacherRoutes);
+app.use("/api/teacher", teacherLessonRoutes);
+app.use("/api/student", studentRoutes);
+app.use("/api/progress", progressRoutes);
 
 // Test route
 app.get("/api/ping", (req, res) => res.json({ ok: true }));
