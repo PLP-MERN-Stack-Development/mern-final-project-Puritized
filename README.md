@@ -179,7 +179,8 @@ Database (MongoDB Atlas)
 
 ## Sreenshot and Video
 
-`<img width="1361" height="607" alt="image" src="https://github.com/user-attachments/assets/f20752ef-c30d-4062-82e9-44d8bdfff0b7"/>`{=html}
+![EduBridge
+Screenshot](https://github.com/user-attachments/assets/f20752ef-c30d-4062-82e9-44d8bdfff0b7)
 
 ------------------------------------------------------------------------
 
