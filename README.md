@@ -171,15 +171,17 @@ Database (MongoDB Atlas)
 ✅ Scalable for thousands of users  
 ✅ Production-ready
 
+---
+
 ## Sreenshot and Video
 
-<img width="1361" height="607" alt="image" src="https://github.com/user-attachments/assets/f20752ef-c30d-4062-82e9-44d8bdfff0b7" />
+<img width="1361" height="607" alt="image" src="https://github.com/user-attachments/assets/f20752ef-c30d-4062-82e9-44d8bdfff0b7"/>
 
-video: https://youtu.be/ac11bJmZWIo
-
+video: <video width="1361" height="607" alt="image" src="https://youtu.be/ac11bJmZWIo"/>
+---
 ## Frontend URL
-https://mern-final-project-puritized-1.onrender.com/
-
+<a href="https://mern-final-project-puritized-1.onrender.com/" target="_blank">https://mern-final-project-puritized-1.onrender.com/</a>
+---
 ## Demo Login
 1. ## Admin
       User: admin
